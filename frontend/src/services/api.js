@@ -36,6 +36,7 @@ export const documentAPI = {
   upload: (data) => api.post('/documents/', data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  delete: (id) => api.delete(`/documents/${id}/`),
 };
 
 export default api;
