@@ -3,9 +3,7 @@ from django.conf import settings
 from django.core.validators import MinLengthValidator
 
 class Chatbot(models.Model):
-    """
-    Chatbot model - represents a user's chatbot instance
-    """
+
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -64,19 +62,14 @@ class Chatbot(models.Model):
     
     @property
     def document_count(self):
-        """Return number of documents uploaded to this chatbot"""
         return self.documents.count()
     
     @property
     def conversation_count(self):
-        """Return number of conversations with this chatbot"""
         return self.conversations.count()
 
 
 class Conversation(models.Model):
-    """
-    Conversation model - represents a chat session with a chatbot
-    """
     chatbot = models.ForeignKey(
         Chatbot,
         on_delete=models.CASCADE,
@@ -119,9 +112,6 @@ class Conversation(models.Model):
 
 
 class Message(models.Model):
-    """
-    Message model - represents a single message in a conversation
-    """
     ROLE_CHOICES = [
         ('user', 'User'),
         ('assistant', 'Assistant'),
@@ -143,8 +133,7 @@ class Message(models.Model):
     content = models.TextField(
         help_text="Message content"
     )
-    
-    # For assistant messages - store retrieved context
+
     context_used = models.JSONField(
         null=True,
         blank=True,

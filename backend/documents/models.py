@@ -8,9 +8,7 @@ def document_upload_path(instance, filename):
     return f'documents/chatbot_{instance.chatbot.id}/{filename}'
 
 class Document(models.Model):
-    """
-    Document model - represents uploaded files for a chatbot
-    """
+
     FILE_TYPE_CHOICES = [
         ('pdf', 'PDF'),
         ('txt', 'Text File'),
@@ -110,9 +108,7 @@ class Document(models.Model):
 
 
 class DocumentChunk(models.Model):
-    """
-    Document chunk model - represents text chunks for vector storage
-    """
+
     document = models.ForeignKey(
         Document,
         on_delete=models.CASCADE,
@@ -127,7 +123,6 @@ class DocumentChunk(models.Model):
         help_text="Order of this chunk in the document"
     )
     
-    # Vector embedding (stored as JSON for now, will use pgvector later)
     embedding = models.JSONField(
         null=True,
         blank=True,
