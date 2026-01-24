@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { chatbotAPI } from '../../services/api';
 import { Container, Grid, Card, CardContent, Typography, Button, Box, IconButton } from '@mui/material';
-import { Add, Delete, Chat } from '@mui/icons-material';
+import { Add, Delete, Chat, BarChart } from '@mui/icons-material';
 
 function Dashboard() {
   const [chatbots, setChatbots] = useState([]);
@@ -44,9 +44,12 @@ function Dashboard() {
             {user?.email} | {chatbots.length}/{user?.max_chatbots} chatbots
           </Typography>
         </Box>
-        <Box>
-          <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/create-chatbot')} sx={{ mr: 2 }}>
-            Create Chatbot
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button variant="outlined" startIcon={<BarChart />} onClick={() => navigate('/analytics')}>
+            Analytics
+          </Button>
+          <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/create-chatbot')}>
+            Create
           </Button>
           <Button variant="outlined" onClick={logout}>Logout</Button>
         </Box>

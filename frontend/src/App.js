@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import CreateChatbot from './components/Chatbots/CreateChatbot';
 import ChatbotDetail from './components/Chatbots/ChatbotDetail';
 import ChatInterface from './components/Chatbots/ChatInterface';
+import Analytics from './components/Analytics/Analytics';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/create-chatbot" element={<ProtectedRoute><CreateChatbot /></ProtectedRoute>} />
           <Route path="/chatbot/:id" element={<ProtectedRoute><ChatbotDetail /></ProtectedRoute>} />
           <Route path="/chat/:id" element={<ProtectedRoute><ChatInterface /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
       </BrowserRouter>
