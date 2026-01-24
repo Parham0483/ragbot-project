@@ -6,6 +6,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls', namespace='accounts')),
+    path('api/', include('chatbots.urls', namespace='chatbots')),
+    path('api/', include('documents.urls', namespace='documents')),
 ]
 
 if settings.DEBUG:
