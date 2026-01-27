@@ -273,7 +273,7 @@ You have access to the following information from uploaded documents:
 
 
         if conversation_history:
-            for msg in conversation_history[-5:]:  # Last 5 messages for context
+            for msg in conversation_history[-5:]:
                 messages.append({
                     "role": msg['role'],
                     "content": msg['content']
