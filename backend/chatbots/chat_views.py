@@ -12,15 +12,6 @@ from services.rag_service import rag_service
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anonymous users to chat
 def chat_endpoint(request, chatbot_id):
-    """
-    Main chat endpoint - handles user messages and generates AI responses
-
-    POST /api/chat/<chatbot_id>/
-    Body: {
-        "message": "What is RAG?",
-        "conversation_id": 123  // optional
-    }
-    """
     try:
         # Get chatbot
         chatbot = get_object_or_404(Chatbot, id=chatbot_id, is_active=True)
@@ -120,11 +111,7 @@ def chat_endpoint(request, chatbot_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def conversation_history(request, conversation_id):
-    """
-    Get all messages in a conversation
 
-    GET /api/chat/conversation/<conversation_id>/
-    """
     try:
         conversation = get_object_or_404(Conversation, id=conversation_id)
 

@@ -16,7 +16,7 @@ urlpatterns = [
     path('api/', include('chatbots.urls', namespace='chatbots')),
     path('api/', include('documents.urls', namespace='documents')),
 
-    # Chat endpoints - THE MONEY MAKERS
+    # Chat endpoints
     path('api/chat/<int:chatbot_id>/', chat_views.chat_endpoint, name='chat'),
     path('api/chat/conversation/<int:conversation_id>/', chat_views.conversation_history, name='conversation-history'),
     path('api/chat/conversation/<int:conversation_id>/delete/', chat_views.delete_conversation,

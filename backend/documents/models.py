@@ -4,7 +4,7 @@ from chatbots.models import Chatbot
 import os
 
 def document_upload_path(instance, filename):
-    """Generate upload path: documents/{chatbot_id}/{filename}"""
+
     return f'documents/chatbot_{instance.chatbot.id}/{filename}'
 
 class Document(models.Model):
