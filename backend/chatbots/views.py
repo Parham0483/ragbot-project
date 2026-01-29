@@ -12,9 +12,7 @@ from .serializers import (
 )
 
 class ChatbotViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for Chatbot CRUD operations
-    """
+
     permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
@@ -23,11 +21,10 @@ class ChatbotViewSet(viewsets.ModelViewSet):
         return ChatbotSerializer
     
     def get_queryset(self):
-        """Return only chatbots owned by current user"""
         return Chatbot.objects.filter(owner=self.request.user)
     
     def create(self, request, *args, **kwargs):
-        """Create a new chatbot"""
+
         user = request.user
         
         # Check if user can create more chatbots
