@@ -20,7 +20,7 @@ function Dashboard() {
       const data = response.data.results || response.data;
       setChatbots(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Failed to load chatbots', error);
+      console.error('Failed to load chatbot', error);
     }
   };
 
