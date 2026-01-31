@@ -30,6 +30,7 @@ function Analytics() {
 
       const chatbots = chatbotsRes.data.results || chatbotsRes.data;
       const documents = documentsRes.data.results || documentsRes.data;
+// This component visualises chatbot usage metrics to support evaluation in IPD
 
       const activeBots = chatbots.filter(bot => bot.is_active).length;
       const totalConvos = chatbots.reduce((sum, bot) => sum + bot.conversation_count, 0);
