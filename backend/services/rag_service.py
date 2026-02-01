@@ -15,7 +15,6 @@ from chatbots.models import Chatbot
 class RAGService:
 
     def __init__(self):
-        # Initialize OpenAI client
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
@@ -25,15 +24,15 @@ class RAGService:
 
         # Text splitter configuration
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,  # Characters per chunk
-            chunk_overlap=50,  # Overlap to maintain context
+            chunk_size=500,
+            chunk_overlap=50,
             length_function=len,
             separators=["\n\n", "\n", " ", ""]
         )
 
 
     def extract_text_from_file(self, file_path: str, file_type: str) -> str:
-        """Extract text from different file types"""
+
         try:
             if file_type == 'pdf':
                 return self._extract_from_pdf(file_path)
@@ -266,9 +265,12 @@ class RAGService:
         # System message with context
         system_message = f"""{system_prompt}
 
-You have access to the following information from uploaded documents:
-{context}
-"""
+        You have access to the following information from uploaded documents:
+        {context}
+
+        When generating your answer, **cite the most relevant source(s) using square brackets like [Source 1], [Source 2]** where the number corresponds to the context above. Only cite sources that actually support the statement.
+        """
+
         messages.append({"role": "system", "content": system_message})
 
 

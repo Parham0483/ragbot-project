@@ -73,14 +73,11 @@ class ChatbotViewSet(viewsets.ModelViewSet):
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for Conversation operations
-    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = ConversationSerializer
     
     def get_queryset(self):
-        """Return conversations for user's chatbots"""
         user_chatbots = Chatbot.objects.filter(owner=self.request.user)
         return Conversation.objects.filter(chatbot__in=user_chatbots)
     
