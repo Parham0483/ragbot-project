@@ -77,7 +77,6 @@ function ChatInterface() {
         setConversationId(response.data.conversation_id);
       }
 
-      // Add AI response
       const aiMessage = {
         role: 'assistant',
         content: response.data.ai_response.content,
@@ -91,7 +90,6 @@ function ChatInterface() {
     } catch (error) {
       console.error('Chat error:', error);
 
-      // Add error message
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please make sure documents have been uploaded and processed, or try again later.',
