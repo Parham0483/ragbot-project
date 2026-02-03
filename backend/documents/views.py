@@ -1,7 +1,3 @@
-"""
-Updated Document Views with RAG Processing
-"""
-
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -32,17 +28,11 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return Document.objects.filter(chatbot__in=user_chatbots)
 
     def create(self, request, *args, **kwargs):
-        """
-        Upload document and automatically process it with RAG
-        """
+        """Upload document and automatically process it with RAG"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         document = serializer.save()
-
-        # Automatically start processing
         try:
-            # Process document in background (for production, use Celery)
-            # For now, process synchronously
             result = rag_service.process_document(document.id)
 
             return Response(
@@ -69,23 +59,12 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def reprocess(self, request, pk=None):
         """Manually reprocess a document"""
         document = self.get_object()
-
-        # Delete existing chunks
         DocumentChunk.objects.filter(document=document).delete()
-
-        # Reprocess
         result = rag_service.process_document(document.id)
 
         return Response(result)
 
     @action(detail=True, methods=['get'])
-    def chunks(self, request, pk=None):
-        """Get all chunks for a document"""
-        document = self.get_object()
-        chunks = document.chunks.all()
-        serializer = DocumentChunkSerializer(chunks, many=True)
-        return Response(serializer.data)
-
     def destroy(self, request, *args, **kwargs):
         """Delete document and all its chunks"""
         instance = self.get_object()
@@ -94,3 +73,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
             {'message': 'Document and all associated chunks deleted'},
             status=status.HTTP_204_NO_CONTENT
         )
+
+    def chunks(self, request, pk=None):
+        document = self.get_object()
+        chunks = document.chunks.all()
+        serializer = DocumentChunkSerializer(chunks, many=True)
+        return Response(serializer.data)
+
