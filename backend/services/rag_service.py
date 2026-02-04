@@ -15,6 +15,7 @@ from chatbots.models import Chatbot
 class RAGService:
 
     def __init__(self):
+        # Initialize OpenAI client
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
@@ -24,15 +25,15 @@ class RAGService:
 
         # Text splitter configuration
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
-            chunk_overlap=50,
+            chunk_size=500,  # Characters per chunk which was used in terms of getting better results and needs to be optimized.
+            chunk_overlap=50,  # Overlap to maintain context to mantain the measning of a chunk.
             length_function=len,
             separators=["\n\n", "\n", " ", ""]
         )
 
 
     def extract_text_from_file(self, file_path: str, file_type: str) -> str:
-
+        """Extract text from different file types using RecursiveCharacterTextSplitter"""
         try:
             if file_type == 'pdf':
                 return self._extract_from_pdf(file_path)
@@ -265,17 +266,14 @@ class RAGService:
         # System message with context
         system_message = f"""{system_prompt}
 
-        You have access to the following information from uploaded documents:
-        {context}
-
-        When generating your answer, **cite the most relevant source(s) using square brackets like [Source 1], [Source 2]** where the number corresponds to the context above. Only cite sources that actually support the statement.
-        """
-
+You have access to the following information from uploaded documents:
+{context}
+"""
         messages.append({"role": "system", "content": system_message})
 
 
         if conversation_history:
-            for msg in conversation_history[-5:]:
+            for msg in conversation_history[-5:]:  # Last 5 messages for context
                 messages.append({
                     "role": msg['role'],
                     "content": msg['content']
