@@ -64,7 +64,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
         return Response(result)
 
-    @action(detail=True, methods=['get'])
     def destroy(self, request, *args, **kwargs):
         """Delete document and all its chunks"""
         instance = self.get_object()
