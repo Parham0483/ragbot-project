@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
+from pgvector.django import VectorField
 from chatbots.models import Chatbot
 import os
 
@@ -122,11 +123,12 @@ class DocumentChunk(models.Model):
     chunk_index = models.IntegerField(
         help_text="Order of this chunk in the document"
     )
-    
-    embedding = models.JSONField(
+
+    embedding = VectorField(
+        dimensions=1536,
         null=True,
         blank=True,
-        help_text="Vector embedding of this chunk"
+        help_text="1536-dimension vector embedding (OpenAI text-embedding-ada-002)"
     )
     
     # Metadata

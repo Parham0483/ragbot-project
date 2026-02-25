@@ -5,6 +5,7 @@ from django.conf import settings
 from openai import OpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
+import tiktoken
 import PyPDF2
 from docx import Document as DocxDocument
 from django.utils import timezone
@@ -23,11 +24,25 @@ class RAGService:
         self.client = OpenAI(api_key=api_key)
         self.embeddings_model = OpenAIEmbeddings(openai_api_key=api_key)
 
-        # Text splitter configuration
+        # cl100k_base is the tokeniser used by text-embedding-ada-002 and GPT-3.5-turbo.
+        # Initialised once here and captured in the lambda below to avoid the overhead
+        # of re-loading the tokeniser vocabulary on every single chunk at processing time.
+        _tokeniser = tiktoken.get_encoding("cl100k_base")
+
+        # Token-aware text splitter.
+        # chunk_size=750 tokens — midpoint of the 500–1000 token range demonstrated
+        # by Maryamah et al. (2024) to optimise retrieval accuracy in RAG systems.
+        # Using the midpoint balances context richness against retrieval precision.
+        # chunk_overlap=75 tokens (10% of chunk_size) — ensures sentences that fall
+        # on a chunk boundary are represented in both adjacent chunks, preventing
+        # loss of cross-boundary context during retrieval.
+        # length_function counts tokens (not characters) so chunk_size is enforced
+        # in the same unit consumed by the embedding model and the LLM, making the
+        # 500–1000 token academic justification directly applicable to this code.
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,  # Characters per chunk which was used in terms of getting better results and needs to be optimized.
-            chunk_overlap=50,  # Overlap to maintain context to mantain the measning of a chunk.
-            length_function=len,
+            chunk_size=750,
+            chunk_overlap=75,
+            length_function=lambda text: len(_tokeniser.encode(text)),
             separators=["\n\n", "\n", " ", ""]
         )
 
@@ -134,19 +149,6 @@ class RAGService:
             }
 
 
-    def cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
-
-        import math
-
-        dot_product = sum(a * b for a, b in zip(vec1, vec2))
-        magnitude1 = math.sqrt(sum(a * a for a in vec1))
-        magnitude2 = math.sqrt(sum(b * b for b in vec2))
-
-        if magnitude1 == 0 or magnitude2 == 0:
-            return 0.0
-
-        return dot_product / (magnitude1 * magnitude2)
-
     def retrieve_relevant_chunks(
             self,
             chatbot_id: int,
@@ -154,32 +156,54 @@ class RAGService:
             top_k: int = 5
     ) -> List[Dict]:
 
+        import json
+        from django.db import connection
+
         query_embedding = self.embeddings_model.embed_query(query)
 
-        # Step 2: Get all chunks for this chatbot's documents
         chatbot = Chatbot.objects.get(id=chatbot_id)
-        all_chunks = DocumentChunk.objects.filter(
+
+        # Guard: skip the SQL round-trip if there are no eligible chunks at all.
+        has_chunks = DocumentChunk.objects.filter(
             document__chatbot=chatbot,
             document__status='completed'
-        ).select_related('document')
+        ).exists()
 
-        if not all_chunks.exists():
+        if not has_chunks:
             return []
 
-        chunk_scores = []
-        for chunk in all_chunks:
-            if chunk.embedding:
-                similarity = self.cosine_similarity(query_embedding, chunk.embedding)
-                chunk_scores.append({
-                    'chunk': chunk,
-                    'similarity': similarity,
-                    'content': chunk.content,
-                    'document_name': chunk.document.file_name,
-                    'metadata': chunk.metadata
-                })
+        query_vector = json.dumps(query_embedding)
 
-        chunk_scores.sort(key=lambda x: x['similarity'], reverse=True)
-        return chunk_scores[:top_k]
+        sql = """
+            SELECT
+                dc.id,
+                dc.content,
+                dc.metadata,
+                d.file_name,
+                1 - (dc.embedding <=> %s::vector) AS similarity
+            FROM document_chunks dc
+            INNER JOIN documents d ON dc.document_id = d.id
+            WHERE d.chatbot_id = %s
+              AND d.status    = 'completed'
+              AND dc.embedding IS NOT NULL
+            ORDER BY dc.embedding <=> %s::vector
+            LIMIT %s;
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [query_vector, chatbot.id, query_vector, top_k])
+            rows = cursor.fetchall()
+
+        return [
+            {
+                'chunk_id':      row[0],
+                'content':       row[1],
+                'metadata':      row[2],
+                'document_name': row[3],
+                'similarity':    float(row[4]),
+            }
+            for row in rows
+        ]
 
 
     def generate_response(
