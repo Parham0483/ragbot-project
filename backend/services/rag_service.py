@@ -24,21 +24,9 @@ class RAGService:
         self.client = OpenAI(api_key=api_key)
         self.embeddings_model = OpenAIEmbeddings(openai_api_key=api_key)
 
-        # cl100k_base is the tokeniser used by text-embedding-ada-002 and GPT-3.5-turbo.
-        # Initialised once here and captured in the lambda below to avoid the overhead
-        # of re-loading the tokeniser vocabulary on every single chunk at processing time.
         _tokeniser = tiktoken.get_encoding("cl100k_base")
 
-        # Token-aware text splitter.
-        # chunk_size=750 tokens — midpoint of the 500–1000 token range demonstrated
-        # by Maryamah et al. (2024) to optimise retrieval accuracy in RAG systems.
-        # Using the midpoint balances context richness against retrieval precision.
-        # chunk_overlap=75 tokens (10% of chunk_size) — ensures sentences that fall
-        # on a chunk boundary are represented in both adjacent chunks, preventing
-        # loss of cross-boundary context during retrieval.
-        # length_function counts tokens (not characters) so chunk_size is enforced
-        # in the same unit consumed by the embedding model and the LLM, making the
-        # 500–1000 token academic justification directly applicable to this code.
+
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=750,
             chunk_overlap=75,
@@ -48,7 +36,7 @@ class RAGService:
 
 
     def extract_text_from_file(self, file_path: str, file_type: str) -> str:
-        """Extract text from different file types using RecursiveCharacterTextSplitter"""
+
         try:
             if file_type == 'pdf':
                 return self._extract_from_pdf(file_path)
@@ -163,7 +151,7 @@ class RAGService:
 
         chatbot = Chatbot.objects.get(id=chatbot_id)
 
-        # Guard: skip the SQL round-trip if there are no eligible chunks at all.
+        #  skip the SQL round-trip if there are no eligible chunks at all.
         has_chunks = DocumentChunk.objects.filter(
             document__chatbot=chatbot,
             document__status='completed'

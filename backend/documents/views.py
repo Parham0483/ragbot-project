@@ -43,7 +43,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_201_CREATED
             )
         except Exception as e:
-            # Document created but processing failed
             return Response(
                 {
                     'document': DocumentSerializer(document, context={'request': request}).data,
