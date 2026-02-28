@@ -3,7 +3,7 @@ from datetime import timedelta
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncDate
 from chatbots.models import Chatbot, Message
 
@@ -102,4 +102,58 @@ def chatbot_summary(request, chatbot_id):
         'total_messages': total_messages,
         'total_conversations': total_conversations,
         'chatbot_name': chatbot.name,
+    })
+
+
+# ── Overview endpoints (aggregate across ALL user chatbots) ──
+
+def _user_messages(user, days):
+    """User messages across all chatbots, optionally date-filtered."""
+    qs = Message.objects.filter(
+        conversation__chatbot__owner=user,
+        role='user'
+    )
+    return date_filter(qs, days)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def overview_messages_per_day(request):
+    days = request.query_params.get('days')
+    data = (
+        _user_messages(request.user, days)
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+    return Response([{'date': str(r['date']), 'count': r['count']} for r in data])
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def overview_frequent_questions(request):
+    days = request.query_params.get('days')
+    data = (
+        _user_messages(request.user, days)
+        .values('content')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:10]
+    )
+    return Response([{'question': r['content'], 'count': r['count']} for r in data])
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def overview_summary(request):
+    days = request.query_params.get('days')
+    total_messages = _user_messages(request.user, days).count()
+    total_conversations = (
+        Chatbot.objects.filter(owner=request.user)
+        .aggregate(total=Count('conversations'))['total'] or 0
+    )
+    return Response({
+        'total_messages': total_messages,
+        'total_conversations': total_conversations,
+        'chatbot_name': 'All Agents',
     })

@@ -1,111 +1,155 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { chatbotAPI, analyticsAPI } from '../../services/api';
 import {
-  Container, Grid, Card, CardContent, Typography, Box, Button,
-  LinearProgress, Select, MenuItem, FormControl, Divider, CircularProgress,
+  Box, Card, CardContent, Typography, LinearProgress, Select,
+  MenuItem, FormControl, CircularProgress, Grid,
 } from '@mui/material';
-import { SmartToy, Chat, ArrowBack, TrendingUp, QuestionAnswer } from '@mui/icons-material';
+import { CalendarToday } from '@mui/icons-material';
+import css from './Analytics.module.css';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, LabelList, Cell,
 } from 'recharts';
 
+const ACCENT = '#B10000';
+const DARK   = '#1A1A1A';
+
 const DATE_RANGES = [
-  { label: 'All', value: '' },
-  { label: '7 Days', value: '7' },
+  { label: 'All',     value: '' },
+  { label: '7 Days',  value: '7' },
   { label: '30 Days', value: '30' },
 ];
 
-const ACCENT = '#B10000'; // Waiting for your Telegram reply....
+const SELECT_SX = {
+  bgcolor: '#fff', border: '1px solid #E0E0E0', borderRadius: 1,
+  fontSize: 14,
+  '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+};
 
-function StatCard({ title, value, subtitle, icon, color }) {
+function CircularStatCard({ value, max, label }) {
+  const unlimited = max === null || max === undefined || max === 0;
+  const pct = unlimited ? 100 : Math.min((value / max) * 100, 100);
+
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>{title}</Typography>
-            <Typography variant="h3" fontWeight="bold" sx={{ mb: 0.5 }}>{value}</Typography>
-            <Typography variant="caption" color="text.secondary">{subtitle}</Typography>
-          </Box>
-          <Box sx={{ bgcolor: color, borderRadius: 2, p: 1.5, flexShrink: 0 }}>
-            {icon}
-          </Box>
+    <Card sx={{ border: '1px solid #E0E0E0', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', bgcolor: '#fff' }}>
+      <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 3, py: '20px !important' }}>
+        <Box sx={{ position: 'relative', width: 72, height: 72, flexShrink: 0 }}>
+          <CircularProgress variant="determinate" value={100} size={72} thickness={5}
+            sx={{ color: '#E0E0E0', position: 'absolute', top: 0, left: 0 }} />
+          <CircularProgress variant="determinate" value={pct} size={72} thickness={5}
+            sx={{ color: DARK }} />
+        </Box>
+        <Box>
+          {unlimited ? (
+            <Typography variant="h5" fontWeight="bold" sx={{ color: DARK, lineHeight: 1.2 }}>Unlimited</Typography>
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5 }}>
+              <Typography variant="h4" fontWeight="bold" sx={{ color: DARK, lineHeight: 1 }}>{value}</Typography>
+              <Typography variant="body1" sx={{ color: '#666' }}>/ {max}</Typography>
+            </Box>
+          )}
+          <Typography variant="body2" sx={{ color: '#666', mt: 0.5 }}>{label}</Typography>
         </Box>
       </CardContent>
     </Card>
   );
 }
 
+function BarTopLabel({ x, y, width, value }) {
+  if (!value) return null;
+  return (
+    <text x={x + width / 2} y={y - 5} textAnchor="middle" fontSize={10} fill={DARK}>{value}</text>
+  );
+}
+
 function Analytics() {
-  const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [chatbots, setChatbots] = useState([]);
-  const [selectedChatbot, setSelectedChatbot] = useState('');
-  const [dateRange, setDateRange] = useState('');
+  const [chatbots, setChatbots]               = useState([]);
+  const [selectedChatbot, setSelectedChatbot] = useState('all'); // 'all' or chatbot id string
+  const [dateRange, setDateRange]             = useState('');
 
-  const [summary, setSummary] = useState(null);
-  const [chartData, setChartData] = useState([]);
-  const [questions, setQuestions] = useState([]);
-
-  const [overallStats, setOverallStats] = useState({ totalChatbots: 0, activeChatbots: 0 });
-  const [loading, setLoading] = useState(true);
+  const [summary, setSummary]           = useState(null);
+  const [chartData, setChartData]       = useState([]);
+  const [questions, setQuestions]       = useState([]);
+  const [overallStats, setOverallStats] = useState({ total: 0, active: 0 });
+  const [loading, setLoading]           = useState(true);
   const [chartLoading, setChartLoading] = useState(false);
 
-  // load chatbot list on mount, auto-select first
   useEffect(() => {
     chatbotAPI.list().then(res => {
       const bots = res.data.results || res.data;
       setChatbots(bots);
-      const active = bots.filter(b => b.is_active).length;
-      setOverallStats({ totalChatbots: bots.length, activeChatbots: active });
-      if (bots.length > 0) setSelectedChatbot(String(bots[0].id));
+      setOverallStats({ total: bots.length, active: bots.filter(b => b.is_active).length });
+      // stay on 'all' by default — don't auto-select first bot
     }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
   const loadAnalytics = useCallback(async (chatbotId, days) => {
-    if (!chatbotId) return;
     setChartLoading(true);
     try {
-      const [summaryRes, chartRes, questionsRes] = await Promise.all([
-        analyticsAPI.summary(chatbotId, days),
-        analyticsAPI.messagesPerDay(chatbotId, days),
-        analyticsAPI.frequentQuestions(chatbotId, days),
+      const isAll = chatbotId === 'all';
+      const [sumRes, chartRes, qRes] = await Promise.all([
+        isAll ? analyticsAPI.overviewSummary(days)            : analyticsAPI.summary(chatbotId, days),
+        isAll ? analyticsAPI.overviewMessagesPerDay(days)     : analyticsAPI.messagesPerDay(chatbotId, days),
+        isAll ? analyticsAPI.overviewFrequentQuestions(days)  : analyticsAPI.frequentQuestions(chatbotId, days),
       ]);
-      setSummary(summaryRes.data);
+      setSummary(sumRes.data);
       setChartData(chartRes.data);
-      setQuestions(questionsRes.data);
+      setQuestions(qRes.data);
     } catch (err) {
-      console.error('Failed to load analytics', err);
+      console.error('analytics load failed', err);
     } finally {
       setChartLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (selectedChatbot) loadAnalytics(selectedChatbot, dateRange);
+    loadAnalytics(selectedChatbot, dateRange);
   }, [selectedChatbot, dateRange, loadAnalytics]);
 
   const totalMessages = summary?.total_messages ?? 0;
-  const totalConversations = summary?.total_conversations ?? 0;
+  const creditsMax    = user?.max_queries_per_month ?? null;
 
-  if (loading) return <Container><LinearProgress sx={{ mt: 4 }} /></Container>;
+  const now          = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const fmt          = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateLabel    = dateRange ? `Last ${dateRange} days` : `${fmt(startOfMonth)} - ${fmt(now)}`;
+
+  const maxCount = chartData.length ? Math.max(...chartData.map(d => d.count)) : 0;
+
+  if (loading) return <LinearProgress sx={{ mt: 4 }} />;
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold">Analytics</Typography>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          {/* date range filter */}
+    <Box>
+
+      {/* ── Header ── */}
+      <div className={css.header}>
+        <h1 className={css.title}>Analytics</h1>
+
+        <div className={css.filters}>
+          {/* Agent filter */}
+          <FormControl size="small">
+            <Select
+              value={selectedChatbot}
+              onChange={e => setSelectedChatbot(e.target.value)}
+              sx={{ ...SELECT_SX, minWidth: 140 }}
+            >
+              <MenuItem value="all">All Agents</MenuItem>
+              {chatbots.map(bot => (
+                <MenuItem key={bot.id} value={String(bot.id)}>{bot.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* Date range filter */}
           <FormControl size="small">
             <Select
               value={dateRange}
               onChange={e => setDateRange(e.target.value)}
               displayEmpty
-              sx={{ minWidth: 100 }}
+              sx={{ ...SELECT_SX, minWidth: 90 }}
             >
               {DATE_RANGES.map(r => (
                 <MenuItem key={r.value} value={r.value}>{r.label}</MenuItem>
@@ -113,148 +157,75 @@ function Analytics() {
             </Select>
           </FormControl>
 
-          {/* chatbot picker */}
-          <FormControl size="small">
-            <Select
-              value={selectedChatbot}
-              onChange={e => setSelectedChatbot(e.target.value)}
-              displayEmpty
-              sx={{ minWidth: 160 }}
-            >
-              {chatbots.map(bot => (
-                <MenuItem key={bot.id} value={String(bot.id)}>{bot.name}</MenuItem>
-              ))}
-              {chatbots.length === 0 && (
-                <MenuItem value="" disabled>No chatbots</MenuItem>
-              )}
-            </Select>
-          </FormControl>
+          {/* Date pill */}
+          <div className={css.datePill}>
+            <CalendarToday sx={{ fontSize: 15, color: '#666' }} />
+            <span>{dateLabel}</span>
+          </div>
+        </div>
+      </div>
 
-          <Button startIcon={<ArrowBack />} onClick={() => navigate('/dashboard')}>Back</Button>
-        </Box>
-      </Box>
-
-      {/* Summary cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total Messages"
-            value={totalMessages}
-            subtitle={dateRange ? `Last ${dateRange} days` : 'All time'}
-            icon={<Chat sx={{ color: 'white', fontSize: 28 }} />}
-            color={ACCENT}
-          />
+      {/* ── Stat cards ── */}
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={12} sm={6}>
+          <CircularStatCard value={totalMessages} max={creditsMax} label="Credits used" />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Conversations"
-            value={totalConversations}
-            subtitle="For this chatbot"
-            icon={<QuestionAnswer sx={{ color: 'white', fontSize: 28 }} />}
-            color="primary.main"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Active Chatbots"
-            value={overallStats.activeChatbots}
-            subtitle={`of ${overallStats.totalChatbots} total`}
-            icon={<SmartToy sx={{ color: 'white', fontSize: 28 }} />}
-            color="success.main"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Plan"
-            value={user?.plan?.toUpperCase() ?? '—'}
-            subtitle={`${user?.max_chatbots - overallStats.totalChatbots} chatbot slots left`}
-            icon={<TrendingUp sx={{ color: 'white', fontSize: 28 }} />}
-            color="info.main"
-          />
+        <Grid item xs={12} sm={6}>
+          <CircularStatCard value={overallStats.active} max={overallStats.total} label="Agents" />
         </Grid>
       </Grid>
 
-      {/* Messages per day bar chart */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" fontWeight="bold" gutterBottom>Messages Per Day</Typography>
-          {chartLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-              <CircularProgress />
-            </Box>
-          ) : chartData.length === 0 ? (
-            <Box sx={{ py: 6, textAlign: 'center' }}>
-              <Typography color="text.secondary">No data for this period</Typography>
-            </Box>
-          ) : (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 11 }}
-                  tickFormatter={d => {
-                    const dt = new Date(d);
-                    return `${dt.toLocaleString('default', { month: 'short' })} ${dt.getDate()}`;
-                  }}
-                  interval="preserveStartEnd"
-                />
-                <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                <Tooltip
-                  formatter={(val) => [val, 'Messages']}
-                  labelFormatter={d => new Date(d).toLocaleDateString()}
-                />
-                <Bar dataKey="count" fill={ACCENT} radius={[4, 4, 0, 0]} maxBarSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
+      {/* ── Bar chart ── */}
+      <div className={css.chartCard}>
+        {chartLoading ? (
+          <div className={css.emptyChart}><CircularProgress size={28} sx={{ color: ACCENT }} /></div>
+        ) : chartData.length === 0 ? (
+          <div className={css.emptyChart}>No data for this period</div>
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D0D0D0" />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 10, fill: '#666' }}
+                tickFormatter={d => {
+                  const dt = new Date(d);
+                  return `${dt.toLocaleString('default', { month: 'short' })} ${dt.getDate()}`;
+                }}
+                interval="preserveStartEnd"
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                formatter={val => [val, 'Messages']}
+                labelFormatter={d => new Date(d).toLocaleDateString()}
+                cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+              />
+              <Bar dataKey="count" radius={[2, 2, 0, 0]} maxBarSize={28}>
+                {chartData.map((entry, i) => (
+                  <Cell key={i} fill={entry.count === maxCount && maxCount > 0 ? ACCENT : DARK} />
+                ))}
+                <LabelList dataKey="count" content={<BarTopLabel />} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
 
-      {/* Top 10 frequent questions */}
-      <Card>
-        <CardContent>
-          <Typography variant="h6" fontWeight="bold" gutterBottom>Top 10 Frequent Questions</Typography>
-          {chartLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : questions.length === 0 ? (
-            <Box sx={{ py: 4, textAlign: 'center' }}>
-              <Typography color="text.secondary">No questions yet</Typography>
-            </Box>
-          ) : (
-            <Box>
-              {questions.map((q, i) => (
-                <React.Fragment key={i}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', py: 1.5, gap: 2 }}>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        width: 24, height: 24, borderRadius: '50%',
-                        bgcolor: i === 0 ? ACCENT : 'action.selected',
-                        color: i === 0 ? 'white' : 'text.primary',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 11, fontWeight: 'bold', flexShrink: 0,
-                      }}
-                    >
-                      {i + 1}
-                    </Typography>
-                    <Typography variant="body2" sx={{ flex: 1, wordBreak: 'break-word' }}>
-                      {q.question}
-                    </Typography>
-                    <Typography variant="body2" fontWeight="bold" sx={{ color: ACCENT, flexShrink: 0 }}>
-                      ×{q.count}
-                    </Typography>
-                  </Box>
-                  {i < questions.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-    </Container>
+      {/* ── Chats ── */}
+      {questions.length > 0 && (
+        <div className={css.chatsCard}>
+          <div className={css.chatsTitle}>Chats</div>
+          {questions.map((q, i) => (
+            <div key={i} className={css.chatRow}>
+              <span className={css.chatQuestion}>{q.question}</span>
+              <span className={css.chatCount}>×{q.count}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+    </Box>
   );
 }
 

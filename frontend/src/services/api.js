@@ -40,12 +40,20 @@ export const documentAPI = {
 };
 
 export const analyticsAPI = {
+  // single chatbot
   messagesPerDay: (chatbotId, days) =>
     api.get(`/analytics/${chatbotId}/messages-per-day/`, { params: days ? { days } : {} }),
   frequentQuestions: (chatbotId, days) =>
     api.get(`/analytics/${chatbotId}/frequent-questions/`, { params: days ? { days } : {} }),
   summary: (chatbotId, days) =>
     api.get(`/analytics/${chatbotId}/summary/`, { params: days ? { days } : {} }),
+  // all chatbots aggregate
+  overviewMessagesPerDay: (days) =>
+    api.get('/analytics/overview/messages-per-day/', { params: days ? { days } : {} }),
+  overviewFrequentQuestions: (days) =>
+    api.get('/analytics/overview/frequent-questions/', { params: days ? { days } : {} }),
+  overviewSummary: (days) =>
+    api.get('/analytics/overview/summary/', { params: days ? { days } : {} }),
 };
 
 export default api;

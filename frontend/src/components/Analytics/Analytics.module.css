@@ -1,0 +1,101 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1A1A1A;
+  letter-spacing: -0.3px;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.datePill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  padding: 0 14px;
+  height: 40px;
+  font-size: 13px;
+  color: #1A1A1A;
+  white-space: nowrap;
+}
+
+.chartCard {
+  background: #EBEBEB;
+  border: none;
+  border-radius: 10px;
+  padding: 16px 12px 8px;
+  margin-bottom: 16px;
+}
+
+.chatsCard {
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.chatsTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1A1A1A;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.chatRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 20px;
+  border-bottom: 1px solid #F5F5F5;
+  transition: background 0.1s;
+  cursor: default;
+}
+
+.chatRow:last-child {
+  border-bottom: none;
+}
+
+.chatRow:hover {
+  background: #FAFAFA;
+}
+
+.chatQuestion {
+  font-size: 14px;
+  color: #1A1A1A;
+  flex: 1;
+}
+
+.chatCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: #1A1A1A;
+  border-radius: 20px;
+  padding: 2px 9px;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+
+.emptyChart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  color: #999;
+  font-size: 14px;
+}
