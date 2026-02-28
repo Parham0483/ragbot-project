@@ -39,3 +39,4 @@ daily_dev.sh
 backend/media/
 frontend/build/
 backend/.coverage
+references/
