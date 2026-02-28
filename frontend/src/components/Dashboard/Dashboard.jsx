@@ -1,93 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import { chatbotAPI } from '../../services/api';
-import { Container, Grid, Card, CardContent, Typography, Button, Box, IconButton } from '@mui/material';
-import { Add, Delete, Chat, BarChart } from '@mui/icons-material';
+import styles from './Dashboard.module.css';
+
+function timeAgo(dateStr) {
+  if (!dateStr) return 'never';
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (diff < 60)    return 'just now';
+  if (diff < 3600)  return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+  const days = Math.floor(diff / 86400);
+  return `${days} day${days !== 1 ? 's' : ''} ago`;
+}
+
+function AgentCard({ bot, onClick }) {
+  return (
+    <div className={styles.agentCard} onClick={onClick}>
+      <div className={styles.cardPattern}>
+        <span className={styles.cardName}>{bot.name}</span>
+      </div>
+      <div className={styles.cardFooter}>
+        <span className={styles.cardMeta}>last trained&nbsp;&nbsp;{timeAgo(bot.updated_at)}</span>
+      </div>
+    </div>
+  );
+}
 
 function Dashboard() {
   const [chatbots, setChatbots] = useState([]);
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadChatbots();
+    chatbotAPI.list()
+      .then(res => {
+        const data = res.data.results || res.data;
+        setChatbots(Array.isArray(data) ? data : []);
+      })
+      .catch(console.error);
   }, []);
 
-  const loadChatbots = async () => {
-    try {
-      const response = await chatbotAPI.list();
-      const data = response.data.results || response.data;
-      setChatbots(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Failed to load chatbot', error);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this chatbot?')) {
-      try {
-        await chatbotAPI.delete(id);
-        loadChatbots();
-      } catch (error) {
-        console.error('Failed to delete', error);
-      }
-    }
-  };
-
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-        <Box>
-          <Typography variant="h4">My Chatbots</Typography>
-          <Typography color="text.secondary">
-            {user?.email} | {chatbots.length}/{user?.max_chatbots} chatbots
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button variant="outlined" startIcon={<BarChart />} onClick={() => navigate('/analytics')}>
-            Analytics
-          </Button>
-          <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/create-chatbot')}>
+    <div>
+      {/* Header */}
+      <div className={styles.header}>
+        <h1 className={styles.title}>AI Agents</h1>
+        <button className={styles.createBtn} onClick={() => navigate('/create-chatbot')}>
+          Create new
+        </button>
+      </div>
+
+      {/* Agent grid */}
+      {chatbots.length > 0 ? (
+        <div className={styles.grid}>
+          {chatbots.map(bot => (
+            <AgentCard key={bot.id} bot={bot} onClick={() => navigate(`/chatbot/${bot.id}`)} />
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyTitle}>Create your first Agent now</p>
+          <button className={styles.emptyBtn} onClick={() => navigate('/create-chatbot')}>
             Create
-          </Button>
-          <Button variant="outlined" onClick={logout}>Logout</Button>
-        </Box>
-      </Box>
-
-      <Grid container spacing={3}>
-        {chatbots.map((bot) => (
-          <Grid item xs={12} md={6} lg={4} key={bot.id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">{bot.name}</Typography>
-                <Typography color="text.secondary" sx={{ mb: 2 }}>{bot.description}</Typography>
-                <Typography variant="body2">
-                  Documents: {bot.document_count} | Conversations: {bot.conversation_count}
-                </Typography>
-                <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                  <Button size="small" startIcon={<Chat />} onClick={() => navigate(`/chatbot/${bot.id}`)}>
-                    Open
-                  </Button>
-                  <IconButton size="small" color="error" onClick={() => handleDelete(bot.id)}>
-                    <Delete />
-                  </IconButton>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {chatbots.length === 0 && (
-        <Box sx={{ textAlign: 'center', mt: 8 }}>
-          <Typography variant="h6" color="text.secondary">No chatbots yet</Typography>
-          <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/create-chatbot')} sx={{ mt: 2 }}>
-            Create Your First Chatbot
-          </Button>
-        </Box>
+          </button>
+        </div>
       )}
-    </Container>
+    </div>
   );
 }
 
