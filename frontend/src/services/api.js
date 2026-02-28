@@ -39,13 +39,4 @@ export const documentAPI = {
   delete: (id) => api.delete(`/documents/${id}/`),
 };
 
-export const analyticsAPI = {
-  messagesPerDay: (chatbotId, days) =>
-    api.get(`/analytics/${chatbotId}/messages-per-day/`, { params: days ? { days } : {} }),
-  frequentQuestions: (chatbotId, days) =>
-    api.get(`/analytics/${chatbotId}/frequent-questions/`, { params: days ? { days } : {} }),
-  summary: (chatbotId, days) =>
-    api.get(`/analytics/${chatbotId}/summary/`, { params: days ? { days } : {} }),
-};
-
 export default api;
