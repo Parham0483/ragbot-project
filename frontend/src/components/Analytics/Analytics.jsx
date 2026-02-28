@@ -1,221 +1,257 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { chatbotAPI, documentAPI } from '../../services/api';
-import { Container, Grid, Card, CardContent, Typography, Box, Button, LinearProgress } from '@mui/material';
-import { SmartToy, Description, Chat, TrendingUp, ArrowBack } from '@mui/icons-material';
+import { chatbotAPI, analyticsAPI } from '../../services/api';
+import {
+  Container, Grid, Card, CardContent, Typography, Box, Button,
+  LinearProgress, Select, MenuItem, FormControl, Divider, CircularProgress,
+} from '@mui/material';
+import { SmartToy, Chat, ArrowBack, TrendingUp, QuestionAnswer } from '@mui/icons-material';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts';
 
-function Analytics() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [stats, setStats] = useState({
-    totalChatbots: 0,
-    activeChatbots: 0,
-    totalDocuments: 0,
-    totalConversations: 0,
-    storageUsed: 0
-  });
-  const [loading, setLoading] = useState(true);
+const DATE_RANGES = [
+  { label: 'All', value: '' },
+  { label: '7 Days', value: '7' },
+  { label: '30 Days', value: '30' },
+];
 
-  useEffect(() => {
-    loadStats();
-  }, []);
+const ACCENT = '#B10000'; // Waiting for your Telegram reply....
 
-  const loadStats = async () => {
-    try {
-      const [chatbotsRes, documentsRes] = await Promise.all([
-        chatbotAPI.list(),
-        documentAPI.list()
-      ]);
-
-      const chatbots = chatbotsRes.data.results || chatbotsRes.data;
-      const documents = documentsRes.data.results || documentsRes.data;
-// This component visualises chatbot usage metrics to support evaluation in IPD
-
-      const activeBots = chatbots.filter(bot => bot.is_active).length;
-      const totalConvos = chatbots.reduce((sum, bot) => sum + bot.conversation_count, 0);
-      const storage = documents.reduce((sum, doc) => sum + doc.file_size, 0);
-
-      setStats({
-        totalChatbots: chatbots.length,
-        activeChatbots: activeBots,
-        totalDocuments: documents.length,
-        totalConversations: totalConvos,
-        storageUsed: storage
-      });
-    } catch (error) {
-      console.error('Failed to load stats', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const StatCard = ({ title, value, subtitle, icon, color }) => (
-    <Card>
+function StatCard({ title, value, subtitle, icon, color }) {
+  return (
+    <Card sx={{ height: '100%' }}>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Box>
-            <Typography color="text.secondary" gutterBottom>{title}</Typography>
-            <Typography variant="h3" sx={{ mb: 1 }}>{value}</Typography>
+            <Typography variant="body2" color="text.secondary" gutterBottom>{title}</Typography>
+            <Typography variant="h3" fontWeight="bold" sx={{ mb: 0.5 }}>{value}</Typography>
             <Typography variant="caption" color="text.secondary">{subtitle}</Typography>
           </Box>
-          <Box sx={{ bgcolor: color, borderRadius: 2, p: 1.5 }}>
+          <Box sx={{ bgcolor: color, borderRadius: 2, p: 1.5, flexShrink: 0 }}>
             {icon}
           </Box>
         </Box>
       </CardContent>
     </Card>
   );
+}
 
-  if (loading) return <Container><LinearProgress /></Container>;
+function Analytics() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [chatbots, setChatbots] = useState([]);
+  const [selectedChatbot, setSelectedChatbot] = useState('');
+  const [dateRange, setDateRange] = useState('');
+
+  const [summary, setSummary] = useState(null);
+  const [chartData, setChartData] = useState([]);
+  const [questions, setQuestions] = useState([]);
+
+  const [overallStats, setOverallStats] = useState({ totalChatbots: 0, activeChatbots: 0 });
+  const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(false);
+
+  // load chatbot list on mount, auto-select first
+  useEffect(() => {
+    chatbotAPI.list().then(res => {
+      const bots = res.data.results || res.data;
+      setChatbots(bots);
+      const active = bots.filter(b => b.is_active).length;
+      setOverallStats({ totalChatbots: bots.length, activeChatbots: active });
+      if (bots.length > 0) setSelectedChatbot(String(bots[0].id));
+    }).catch(console.error).finally(() => setLoading(false));
+  }, []);
+
+  const loadAnalytics = useCallback(async (chatbotId, days) => {
+    if (!chatbotId) return;
+    setChartLoading(true);
+    try {
+      const [summaryRes, chartRes, questionsRes] = await Promise.all([
+        analyticsAPI.summary(chatbotId, days),
+        analyticsAPI.messagesPerDay(chatbotId, days),
+        analyticsAPI.frequentQuestions(chatbotId, days),
+      ]);
+      setSummary(summaryRes.data);
+      setChartData(chartRes.data);
+      setQuestions(questionsRes.data);
+    } catch (err) {
+      console.error('Failed to load analytics', err);
+    } finally {
+      setChartLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedChatbot) loadAnalytics(selectedChatbot, dateRange);
+  }, [selectedChatbot, dateRange, loadAnalytics]);
+
+  const totalMessages = summary?.total_messages ?? 0;
+  const totalConversations = summary?.total_conversations ?? 0;
+
+  if (loading) return <Container><LinearProgress sx={{ mt: 4 }} /></Container>;
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-        <Typography variant="h4">Analytics Dashboard</Typography>
-        <Button startIcon={<ArrowBack />} onClick={() => navigate('/dashboard')}>
-          Back
-        </Button>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" fontWeight="bold">Analytics</Typography>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          {/* date range filter */}
+          <FormControl size="small">
+            <Select
+              value={dateRange}
+              onChange={e => setDateRange(e.target.value)}
+              displayEmpty
+              sx={{ minWidth: 100 }}
+            >
+              {DATE_RANGES.map(r => (
+                <MenuItem key={r.value} value={r.value}>{r.label}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* chatbot picker */}
+          <FormControl size="small">
+            <Select
+              value={selectedChatbot}
+              onChange={e => setSelectedChatbot(e.target.value)}
+              displayEmpty
+              sx={{ minWidth: 160 }}
+            >
+              {chatbots.map(bot => (
+                <MenuItem key={bot.id} value={String(bot.id)}>{bot.name}</MenuItem>
+              ))}
+              {chatbots.length === 0 && (
+                <MenuItem value="" disabled>No chatbots</MenuItem>
+              )}
+            </Select>
+          </FormControl>
+
+          <Button startIcon={<ArrowBack />} onClick={() => navigate('/dashboard')}>Back</Button>
+        </Box>
       </Box>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6} lg={3}>
+      {/* Summary cards */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Total Chatbots"
-            value={stats.totalChatbots}
-            subtitle={`${user?.max_chatbots - stats.totalChatbots} remaining`}
-            icon={<SmartToy sx={{ color: 'white', fontSize: 32 }} />}
+            title="Total Messages"
+            value={totalMessages}
+            subtitle={dateRange ? `Last ${dateRange} days` : 'All time'}
+            icon={<Chat sx={{ color: 'white', fontSize: 28 }} />}
+            color={ACCENT}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Conversations"
+            value={totalConversations}
+            subtitle="For this chatbot"
+            icon={<QuestionAnswer sx={{ color: 'white', fontSize: 28 }} />}
             color="primary.main"
           />
         </Grid>
-
-        <Grid item xs={12} md={6} lg={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Active Bots"
-            value={stats.activeChatbots}
-            subtitle={`${stats.totalChatbots - stats.activeChatbots} inactive`}
-            icon={<TrendingUp sx={{ color: 'white', fontSize: 32 }} />}
+            title="Active Chatbots"
+            value={overallStats.activeChatbots}
+            subtitle={`of ${overallStats.totalChatbots} total`}
+            icon={<SmartToy sx={{ color: 'white', fontSize: 28 }} />}
             color="success.main"
           />
         </Grid>
-
-        <Grid item xs={12} md={6} lg={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Documents"
-            value={stats.totalDocuments}
-            subtitle={`${(stats.storageUsed / 1024 / 1024).toFixed(2)} MB used`}
-            icon={<Description sx={{ color: 'white', fontSize: 32 }} />}
+            title="Plan"
+            value={user?.plan?.toUpperCase() ?? '—'}
+            subtitle={`${user?.max_chatbots - overallStats.totalChatbots} chatbot slots left`}
+            icon={<TrendingUp sx={{ color: 'white', fontSize: 28 }} />}
             color="info.main"
           />
         </Grid>
-
-        <Grid item xs={12} md={6} lg={3}>
-          <StatCard
-            title="Conversations"
-            value={stats.totalConversations}
-            subtitle="Total chats"
-            icon={<Chat sx={{ color: 'white', fontSize: 32 }} />}
-            color="warning.main"
-          />
-        </Grid>
       </Grid>
 
-      <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Plan Usage</Typography>
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="body2">Chatbots</Typography>
-                  <Typography variant="body2">{stats.totalChatbots}/{user?.max_chatbots}</Typography>
-                </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={(stats.totalChatbots / user?.max_chatbots) * 100}
-                  sx={{ height: 8, borderRadius: 1 }}
-                />
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="body2">Documents per Chatbot</Typography>
-                  <Typography variant="body2">
-                    {stats.totalChatbots > 0 ? Math.round(stats.totalDocuments / stats.totalChatbots) : 0}/
-                    {user?.max_documents_per_chatbot}
-                  </Typography>
-                </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={stats.totalChatbots > 0 ? (stats.totalDocuments / stats.totalChatbots / user?.max_documents_per_chatbot) * 100 : 0}
-                  sx={{ height: 8, borderRadius: 1 }}
-                  color="secondary"
-                />
-              </Box>
-
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Current Plan: <strong>{user?.plan.toUpperCase()}</strong>
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Quick Stats</Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2">Account Type</Typography>
-                  <Typography variant="body2" fontWeight="bold">{user?.plan}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2">Storage Used</Typography>
-                  <Typography variant="body2" fontWeight="bold">
-                    {(stats.storageUsed / 1024 / 1024).toFixed(2)} MB
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2">Avg Docs per Bot</Typography>
-                  <Typography variant="body2" fontWeight="bold">
-                    {stats.totalChatbots > 0 ? (stats.totalDocuments / stats.totalChatbots).toFixed(1) : 0}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2">Avg Conversations</Typography>
-                  <Typography variant="body2" fontWeight="bold">
-                    {stats.totalChatbots > 0 ? (stats.totalConversations / stats.totalChatbots).toFixed(1) : 0}
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Card sx={{ mt: 3 }}>
+      {/* Messages per day bar chart */}
+      <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom>System Status</Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={6} md={3}>
-              <Typography variant="caption" color="text.secondary">API Status</Typography>
-              <Typography variant="h6" color="success.main">Online</Typography>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Typography variant="caption" color="text.secondary">Database</Typography>
-              <Typography variant="h6" color="success.main">Connected</Typography>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Typography variant="caption" color="text.secondary">Storage</Typography>
-              <Typography variant="h6" color="success.main">Available</Typography>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Typography variant="caption" color="text.secondary">Uptime</Typography>
-              <Typography variant="h6">99.9%</Typography>
-            </Grid>
-          </Grid>
+          <Typography variant="h6" fontWeight="bold" gutterBottom>Messages Per Day</Typography>
+          {chartLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+              <CircularProgress />
+            </Box>
+          ) : chartData.length === 0 ? (
+            <Box sx={{ py: 6, textAlign: 'center' }}>
+              <Typography color="text.secondary">No data for this period</Typography>
+            </Box>
+          ) : (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 11 }}
+                  tickFormatter={d => {
+                    const dt = new Date(d);
+                    return `${dt.toLocaleString('default', { month: 'short' })} ${dt.getDate()}`;
+                  }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                <Tooltip
+                  formatter={(val) => [val, 'Messages']}
+                  labelFormatter={d => new Date(d).toLocaleDateString()}
+                />
+                <Bar dataKey="count" fill={ACCENT} radius={[4, 4, 0, 0]} maxBarSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Top 10 frequent questions */}
+      <Card>
+        <CardContent>
+          <Typography variant="h6" fontWeight="bold" gutterBottom>Top 10 Frequent Questions</Typography>
+          {chartLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : questions.length === 0 ? (
+            <Box sx={{ py: 4, textAlign: 'center' }}>
+              <Typography color="text.secondary">No questions yet</Typography>
+            </Box>
+          ) : (
+            <Box>
+              {questions.map((q, i) => (
+                <React.Fragment key={i}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', py: 1.5, gap: 2 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        width: 24, height: 24, borderRadius: '50%',
+                        bgcolor: i === 0 ? ACCENT : 'action.selected',
+                        color: i === 0 ? 'white' : 'text.primary',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 11, fontWeight: 'bold', flexShrink: 0,
+                      }}
+                    >
+                      {i + 1}
+                    </Typography>
+                    <Typography variant="body2" sx={{ flex: 1, wordBreak: 'break-word' }}>
+                      {q.question}
+                    </Typography>
+                    <Typography variant="body2" fontWeight="bold" sx={{ color: ACCENT, flexShrink: 0 }}>
+                      ×{q.count}
+                    </Typography>
+                  </Box>
+                  {i < questions.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+            </Box>
+          )}
         </CardContent>
       </Card>
     </Container>

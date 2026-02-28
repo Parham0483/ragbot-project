@@ -40,3 +40,4 @@ backend/media/
 frontend/build/
 backend/.coverage
 references/
+.sandbox/

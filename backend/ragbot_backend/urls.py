@@ -14,6 +14,9 @@ urlpatterns = [
     path('api/', include('chatbots.urls', namespace='chatbots')),
     path('api/', include('documents.urls', namespace='documents')),
 
+    # Analytics
+    path('api/analytics/', include('analytics.urls', namespace='analytics')),
+
     # Chat endpoints
     path('api/chat/<int:chatbot_id>/', chat_views.chat_endpoint, name='chat'),
     path('api/chat/conversation/<int:conversation_id>/', chat_views.conversation_history, name='conversation-history'),
