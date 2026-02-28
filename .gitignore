@@ -31,3 +31,8 @@ Thumbs.db
 node_modules/
 npm-debug.log
 yarn-error.log
+
+.claude/
+daily_dev.sh
+CLAUDE.md
+daily_dev.sh
