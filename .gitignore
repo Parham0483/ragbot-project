@@ -36,3 +36,6 @@ yarn-error.log
 daily_dev.sh
 CLAUDE.md
 daily_dev.sh
+backend/media/
+frontend/build/
+backend/.coverage
