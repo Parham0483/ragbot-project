@@ -1,9 +1,9 @@
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, date
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Count, Sum
+from django.db.models import Count, Avg
 from django.db.models.functions import TruncDate
 from chatbots.models import Chatbot, Message
 
@@ -33,25 +33,27 @@ def messages_per_day(request, chatbot_id):
     if not chatbot:
         return Response({'error': 'Not found'}, status=404)
 
-    days = request.query_params.get('days')
-    messages = Message.objects.filter(
-        conversation__chatbot=chatbot,
-        role='user'
-    )
-    messages = date_filter(messages, days)
+    # Always show last 30 days, filling zeros for empty days
+    today = timezone.now().date()
+    start = today - timedelta(days=29)
 
-    data = (
-        messages
-        .annotate(date=TruncDate('created_at'))
-        .values('date')
-        .annotate(count=Count('id'))
-        .order_by('date')
-    )
+    counts = {
+        row['date']: row['count']
+        for row in (
+            Message.objects
+            .filter(conversation__chatbot=chatbot, role='user', created_at__date__gte=start)
+            .annotate(date=TruncDate('created_at'))
+            .values('date')
+            .annotate(count=Count('id'))
+        )
+    }
 
-    return Response([
-        {'date': str(row['date']), 'count': row['count']}
-        for row in data
-    ])
+    result = []
+    for i in range(30):
+        d = start + timedelta(days=i)
+        result.append({'date': str(d), 'count': counts.get(d, 0)})
+
+    return Response(result)
 
 
 @api_view(['GET'])
@@ -61,18 +63,13 @@ def frequent_questions(request, chatbot_id):
     if not chatbot:
         return Response({'error': 'Not found'}, status=404)
 
-    days = request.query_params.get('days')
-    messages = Message.objects.filter(
-        conversation__chatbot=chatbot,
-        role='user'
-    )
-    messages = date_filter(messages, days)
-
+    # Top 10 by frequency, then most recent for tiebreaking
     data = (
-        messages
+        Message.objects
+        .filter(conversation__chatbot=chatbot, role='user')
         .values('content')
         .annotate(count=Count('id'))
-        .order_by('-count')[:10]
+        .order_by('-count', '-id')[:10]
     )
 
     return Response([
@@ -88,20 +85,31 @@ def chatbot_summary(request, chatbot_id):
     if not chatbot:
         return Response({'error': 'Not found'}, status=404)
 
-    days = request.query_params.get('days')
-    messages = Message.objects.filter(
-        conversation__chatbot=chatbot,
-        role='user'
-    )
-    messages = date_filter(messages, days)
+    user_msgs = Message.objects.filter(conversation__chatbot=chatbot, role='user')
+    assistant_msgs = Message.objects.filter(conversation__chatbot=chatbot, role='assistant')
 
-    total_messages = messages.count()
+    total_messages = user_msgs.count()
     total_conversations = chatbot.conversations.count()
+
+    # avg response time from assistant messages that have it recorded
+    avg_rt = assistant_msgs.filter(response_time_ms__isnull=False).aggregate(
+        avg=Avg('response_time_ms')
+    )['avg']
+
+    # days that had at least 1 user message
+    active_days = (
+        user_msgs
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .distinct()
+        .count()
+    )
 
     return Response({
         'total_messages': total_messages,
         'total_conversations': total_conversations,
-        'chatbot_name': chatbot.name,
+        'avg_response_time_ms': round(avg_rt) if avg_rt is not None else None,
+        'active_days': active_days,
     })
 
 
