@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from chatbots import chat_views
+from chatbots import chat_views, widget_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -16,6 +16,10 @@ urlpatterns = [
 
     # Analytics
     path('api/analytics/', include('analytics.urls', namespace='analytics')),
+
+    # Widget endpoints (public, no auth)
+    path('api/widget/<int:chatbot_id>/config/', widget_views.widget_config, name='widget-config'),
+    path('api/widget/<int:chatbot_id>/chat/', widget_views.widget_chat, name='widget-chat'),
 
     # Chat endpoints
     path('api/chat/<int:chatbot_id>/', chat_views.chat_endpoint, name='chat'),

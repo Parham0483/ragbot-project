@@ -1,0 +1,92 @@
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+
+from chatbots.models import Chatbot, Conversation, Message
+from services.rag_service import rag_service
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def widget_config(request, chatbot_id):
+    # Fetch chatbot regardless of is_active so embed always loads config
+    chatbot = get_object_or_404(Chatbot, id=chatbot_id)
+    return Response({
+        'name': chatbot.name,
+        'avatar_url': None,          # placeholder — no avatar field yet
+        'welcome_message': f"Hi! I'm {chatbot.name}. How can I help you?",
+        'theme_colour': '#B10000',   # default accent colour
+        'active': chatbot.is_active,
+    })
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def widget_chat(request, chatbot_id):
+    # Block inactive bots before doing anything
+    chatbot = get_object_or_404(Chatbot, id=chatbot_id)
+    if not chatbot.is_active:
+        return Response(
+            {'error': 'Chatbot is currently offline'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    user_message = request.data.get('message', '').strip()
+    if not user_message:
+        return Response(
+            {'error': 'Message cannot be empty'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Get or create conversation
+    conversation_id = request.data.get('conversation_id')
+    if conversation_id:
+        conversation = get_object_or_404(Conversation, id=conversation_id, chatbot=chatbot)
+    else:
+        conversation = Conversation.objects.create(
+            chatbot=chatbot,
+            user=None,  # always anonymous from widget
+            title=user_message[:50] + '...' if len(user_message) > 50 else user_message
+        )
+
+    # Save user message
+    user_msg = Message.objects.create(
+        conversation=conversation,
+        role='user',
+        content=user_message
+    )
+
+    # Build recent history (last 5 msgs, excluding the one just saved)
+    history = []
+    for msg in reversed(list(conversation.messages.order_by('-created_at')[:5])):
+        if msg.id != user_msg.id:
+            history.append({'role': msg.role, 'content': msg.content})
+
+    # Call RAG
+    rag_result = rag_service.generate_response(
+        chatbot=chatbot,
+        user_message=user_message,
+        conversation_history=history
+    )
+
+    if not rag_result['success']:
+        return Response(
+            {'error': rag_result.get('error', 'Failed to generate response')},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    # Save AI reply
+    ai_msg = Message.objects.create(
+        conversation=conversation,
+        role='assistant',
+        content=rag_result['response'],
+        context_used=rag_result.get('chunks_used', []),
+        tokens_used=rag_result.get('tokens_used', 0)
+    )
+
+    return Response({
+        'reply': ai_msg.content,
+        'conversation_id': conversation.id,
+    })
