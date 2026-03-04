@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.conf import settings
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
@@ -89,4 +90,18 @@ def widget_chat(request, chatbot_id):
     return Response({
         'reply': ai_msg.content,
         'conversation_id': conversation.id,
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def embed_code(request, chatbot_id):
+    # Owner-only: 404 if chatbot doesn't belong to this user
+    chatbot = get_object_or_404(Chatbot, id=chatbot_id, owner=request.user)
+    base = settings.BASE_URL.rstrip('/')
+    widget_url = f"{base}/widget/{chatbot.id}/"
+    iframe = f'<iframe src="{widget_url}" width="400" height="600" frameborder="0"></iframe>'
+    return Response({
+        'embed_code': iframe,
+        'widget_url': widget_url,
     })

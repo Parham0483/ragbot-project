@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
@@ -70,6 +70,16 @@ class ChatbotViewSet(viewsets.ModelViewSet):
         documents = chatbot.documents.all()
         serializer = DocumentSerializer(documents, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def toggle_chatbot(request, chatbot_id):
+    # Only the owner can toggle
+    chatbot = get_object_or_404(Chatbot, id=chatbot_id, owner=request.user)
+    chatbot.is_active = not chatbot.is_active
+    chatbot.save(update_fields=['is_active'])
+    return Response({'is_active': chatbot.is_active})
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
