@@ -146,6 +146,18 @@ class Message(models.Model):
         blank=True,
         help_text="Number of tokens used for this message"
     )
+
+    response_time_ms = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Time taken to generate this response in milliseconds"
+    )
+
+    was_helpful = models.BooleanField(
+        null=True,
+        blank=True,
+        help_text="User feedback on whether the response was helpful"
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     
