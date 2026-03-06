@@ -1,3 +1,4 @@
+import time
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -7,6 +8,7 @@ from django.utils import timezone
 
 from chatbots.models import Chatbot, Conversation, Message
 from services.rag_service import rag_service
+from accounts.utils import get_monthly_usage
 
 
 @api_view(['POST'])
@@ -47,6 +49,14 @@ def chat_endpoint(request, chatbot_id):
             content=user_message
         )
 
+        # Enforce monthly query limit for authenticated owners
+        if request.user.is_authenticated:
+            if get_monthly_usage(request.user) >= request.user.max_queries_per_month:
+                return Response(
+                    {'error': 'Monthly message limit reached. Please upgrade your plan.'},
+                    status=status.HTTP_429_TOO_MANY_REQUESTS
+                )
+
         # Get conversation history (last 5 messages for context)
         history = []
         previous_messages = conversation.messages.order_by('-created_at')[:5]
@@ -57,12 +67,14 @@ def chat_endpoint(request, chatbot_id):
                     'content': msg.content
                 })
 
-        # Generate AI response using RAG
+        # Generate AI response using RAG, timing the call
+        t0 = time.monotonic()
         rag_result = rag_service.generate_response(
             chatbot=chatbot,
             user_message=user_message,
             conversation_history=history
         )
+        response_time_ms = int((time.monotonic() - t0) * 1000)
 
         if not rag_result['success']:
             return Response(
@@ -70,13 +82,14 @@ def chat_endpoint(request, chatbot_id):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        # Save AI response
+        # Save AI response with timing
         ai_msg = Message.objects.create(
             conversation=conversation,
             role='assistant',
             content=rag_result['response'],
             context_used=rag_result.get('chunks_used', []),
-            tokens_used=rag_result.get('tokens_used', 0)
+            tokens_used=rag_result.get('tokens_used', 0),
+            response_time_ms=response_time_ms,
         )
 
         # Return response
