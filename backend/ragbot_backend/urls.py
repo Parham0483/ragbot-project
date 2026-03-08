@@ -26,6 +26,7 @@ urlpatterns = [
 
     # Chat endpoints
     path('api/chat/<int:chatbot_id>/', chat_views.chat_endpoint, name='chat'),
+    path('api/chat/<int:chatbot_id>/message/<int:message_id>/feedback/', chat_views.message_feedback, name='message-feedback'),
     path('api/chat/conversation/<int:conversation_id>/', chat_views.conversation_history, name='conversation-history'),
     path('api/chat/conversation/<int:conversation_id>/delete/', chat_views.delete_conversation,
          name='conversation-delete'),

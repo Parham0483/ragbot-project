@@ -105,11 +105,19 @@ def chatbot_summary(request, chatbot_id):
         .count()
     )
 
+    helpful_count = assistant_msgs.filter(was_helpful=True).count()
+    not_helpful_count = assistant_msgs.filter(was_helpful=False).count()
+    rated_total = helpful_count + not_helpful_count
+    helpfulness_rate = round(helpful_count / rated_total * 100, 1) if rated_total > 0 else None
+
     return Response({
         'total_messages': total_messages,
         'total_conversations': total_conversations,
         'avg_response_time_ms': round(avg_rt) if avg_rt is not None else None,
         'active_days': active_days,
+        'helpful_count': helpful_count,
+        'not_helpful_count': not_helpful_count,
+        'helpfulness_rate': helpfulness_rate,
     })
 
 

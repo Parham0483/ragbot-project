@@ -41,3 +41,10 @@ frontend/build/
 backend/.coverage
 references/
 .sandbox/
+
+# Evidence / screenshots (generated artefacts, not source)
+tests/
+
+# Root-level package.json/lock created by playwright install
+package.json
+package-lock.json

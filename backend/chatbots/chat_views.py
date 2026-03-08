@@ -161,6 +161,23 @@ def conversation_history(request, conversation_id):
         )
 
 
+@api_view(['PATCH'])
+@permission_classes([AllowAny])
+def message_feedback(request, chatbot_id, message_id):
+    msg = get_object_or_404(
+        Message,
+        id=message_id,
+        role='assistant',
+        conversation__chatbot_id=chatbot_id
+    )
+    was_helpful = request.data.get('was_helpful')
+    if was_helpful is None or not isinstance(was_helpful, bool):
+        return Response({'error': 'was_helpful must be true or false'}, status=status.HTTP_400_BAD_REQUEST)
+    msg.was_helpful = was_helpful
+    msg.save(update_fields=['was_helpful'])
+    return Response({'status': 'ok'})
+
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_conversation(request, conversation_id):

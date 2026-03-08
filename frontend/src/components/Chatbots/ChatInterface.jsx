@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Box, TextField, Button, Paper, Typography, IconButton, Avatar, CircularProgress, Chip, Collapse } from '@mui/material';
-import { ArrowBack, Send, SmartToy, Person, ExpandMore } from '@mui/icons-material';
+import { ArrowBack, Send, SmartToy, Person, ExpandMore, ThumbUp, ThumbDown } from '@mui/icons-material';
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api';
@@ -15,6 +15,7 @@ function ChatInterface() {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   const [expandedContext, setExpandedContext] = useState({});
+  const [feedback, setFeedback] = useState({});
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -115,6 +116,19 @@ function ChatInterface() {
     }));
   };
 
+  const sendFeedback = async (messageId, wasHelpful) => {
+    if (feedback[messageId] !== undefined) return;
+    setFeedback(prev => ({ ...prev, [messageId]: wasHelpful }));
+    try {
+      await axios.patch(
+        `${API_URL}/chat/${id}/message/${messageId}/feedback/`,
+        { was_helpful: wasHelpful }
+      );
+    } catch (err) {
+      console.error('Feedback error', err);
+    }
+  };
+
   if (!chatbot) return <CircularProgress />;
 
   return (
@@ -172,6 +186,37 @@ function ChatInterface() {
                     </Typography>
                   )}
                 </Paper>
+
+                {msg.role === 'assistant' && !msg.isError && typeof msg.id === 'number' && (
+                  <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => sendFeedback(msg.id, true)}
+                      sx={{
+                        color: feedback[msg.id] === true ? '#1A1A1A' : '#bbb',
+                        '&:hover': { color: feedback[msg.id] === undefined ? '#1A1A1A' : undefined },
+                        pointerEvents: feedback[msg.id] !== undefined ? 'none' : 'auto',
+                        p: '2px'
+                      }}
+                      title="Helpful"
+                    >
+                      <ThumbUp sx={{ fontSize: 16 }} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => sendFeedback(msg.id, false)}
+                      sx={{
+                        color: feedback[msg.id] === false ? '#B10000' : '#bbb',
+                        '&:hover': { color: feedback[msg.id] === undefined ? '#B10000' : undefined },
+                        pointerEvents: feedback[msg.id] !== undefined ? 'none' : 'auto',
+                        p: '2px'
+                      }}
+                      title="Not helpful"
+                    >
+                      <ThumbDown sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Box>
+                )}
 
                 {/* Context Sources */}
                 {msg.context && msg.context.length > 0 && (
