@@ -9,8 +9,9 @@ function ChatbotDetail() {
   const navigate = useNavigate();
   const [chatbot, setChatbot] = useState(null);
   const [documents, setDocuments] = useState([]);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(null); // "X / Y"
 
   useEffect(() => {
     loadChatbot();
@@ -37,27 +38,36 @@ function ChatbotDetail() {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    setFiles(Array.from(e.target.files));
   };
 
   const handleUpload = async () => {
-    if (!file) return;
-    
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('chatbot', id);
+    if (!files.length) return;
 
-    try {
-      await documentAPI.upload(formData);
-      setFile(null);
-      loadDocuments();
-      loadChatbot();
-    } catch (error) {
-      console.error('Upload failed', error);
-      alert('Upload failed. Check file type (PDF, TXT, DOCX, MD only)');
-    } finally {
-      setUploading(false);
+    setUploading(true);
+    const failed = [];
+
+    for (let i = 0; i < files.length; i++) {
+      setUploadProgress(`${i + 1} / ${files.length}`);
+      const formData = new FormData();
+      formData.append('file', files[i]);
+      formData.append('chatbot', id);
+      try {
+        await documentAPI.upload(formData);
+      } catch (error) {
+        console.error('Upload failed for', files[i].name, error);
+        failed.push(files[i].name);
+      }
+    }
+
+    setFiles([]);
+    setUploadProgress(null);
+    setUploading(false);
+    loadDocuments();
+    loadChatbot();
+
+    if (failed.length) {
+      alert(`Failed to upload: ${failed.join(', ')}\nCheck file types (PDF, TXT, DOCX, MD only)`);
     }
   };
 
@@ -107,21 +117,21 @@ function ChatbotDetail() {
             <TextField
               type="file"
               onChange={handleFileChange}
-              inputProps={{ accept: '.pdf,.txt,.docx,.md' }}
+              inputProps={{ accept: '.pdf,.txt,.docx,.md', multiple: true }}
               fullWidth
             />
             <Button
               variant="contained"
               startIcon={<Upload />}
               onClick={handleUpload}
-              disabled={!file || uploading}
+              disabled={!files.length || uploading}
             >
-              Upload
+              {uploading ? uploadProgress : 'Upload'}
             </Button>
           </Box>
           {uploading && <LinearProgress sx={{ mt: 2 }} />}
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            Supported: PDF, TXT, DOCX, MD (max 10MB)
+            Supported: PDF, TXT, DOCX, MD (max 10MB) — select up to 10 files at once
           </Typography>
         </CardContent>
       </Card>

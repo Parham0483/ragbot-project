@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Box, TextField, Button, Paper, Typography, IconButton, Avatar, CircularProgress, Chip, Collapse } from '@mui/material';
-import { ArrowBack, Send, SmartToy, Person, ExpandMore, ThumbUp, ThumbDown } from '@mui/icons-material';
+import { ArrowBack, Send, SmartToy, ExpandMore, ThumbUp, ThumbDown } from '@mui/icons-material';
+import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api';
@@ -9,6 +10,7 @@ const API_URL = 'http://localhost:8000/api';
 function ChatInterface() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [chatbot, setChatbot] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -252,9 +254,7 @@ function ChatInterface() {
               </Box>
 
               {msg.role === 'user' && (
-                <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                  <Person />
-                </Avatar>
+                <Avatar src={user?.gravatar_url} alt={user?.full_name || 'You'} sx={{ width: 32, height: 32 }} />
               )}
             </Box>
           </Box>

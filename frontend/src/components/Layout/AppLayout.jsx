@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { IconButton, Collapse } from '@mui/material';
+import { IconButton, Collapse, Avatar } from '@mui/material';
 import {
   SmartToy, BarChart, Settings,
   ChevronLeft, ChevronRight, ExpandMore, ExpandLess,
@@ -31,7 +31,6 @@ export default function AppLayout({ children }) {
   };
 
   const displayName = user?.first_name || user?.email?.split('@')[0] || 'User';
-  const avatarLetter = displayName[0].toUpperCase();
 
   return (
     <div className={styles.layout}>
@@ -48,7 +47,7 @@ export default function AppLayout({ children }) {
 
         <div className={styles.navbarRight}>
           <span className={styles.userName}>{displayName}</span>
-          <div className={styles.avatar}>{avatarLetter}</div>
+          <Avatar src={user?.gravatar_url} alt={displayName} sx={{ width: 32, height: 32 }} />
         </div>
       </header>
 
