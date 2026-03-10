@@ -1,12 +1,20 @@
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.throttling import AnonRateThrottle
 from django.conf import settings
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from chatbots.models import Chatbot, Conversation, Message
 from services.rag_service import rag_service
+from accounts.utils import get_monthly_usage
+
+MAX_MESSAGE_LENGTH = 2000
+
+
+class WidgetChatThrottle(AnonRateThrottle):
+    rate = '20/minute'
 
 
 @api_view(['GET'])
@@ -25,8 +33,8 @@ def widget_config(request, chatbot_id):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([WidgetChatThrottle])
 def widget_chat(request, chatbot_id):
-    # Block inactive bots before doing anything
     chatbot = get_object_or_404(Chatbot, id=chatbot_id)
     if not chatbot.is_active:
         return Response(
@@ -39,6 +47,19 @@ def widget_chat(request, chatbot_id):
         return Response(
             {'error': 'Message cannot be empty'},
             status=status.HTTP_400_BAD_REQUEST
+        )
+    if len(user_message) > MAX_MESSAGE_LENGTH:
+        return Response(
+            {'error': f'Message exceeds {MAX_MESSAGE_LENGTH} character limit'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Enforce owner's monthly quota — widget bypasses chat_endpoint so check here
+    owner = chatbot.owner
+    if get_monthly_usage(owner) >= owner.max_queries_per_month:
+        return Response(
+            {'error': 'This chatbot has reached its monthly message limit'},
+            status=status.HTTP_429_TOO_MANY_REQUESTS
         )
 
     # Get or create conversation

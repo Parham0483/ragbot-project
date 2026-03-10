@@ -1,11 +1,21 @@
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-default-key')
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+# In production, refuse to start with an insecure or missing SECRET_KEY.
+_INSECURE_KEYS = {'django-insecure-default-key', '', None}
+if not DEBUG and SECRET_KEY in _INSECURE_KEYS:
+    raise ImproperlyConfigured(
+        "SECRET_KEY must be set to a strong random value in production. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(50))\""
+    )
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.railway.app', '.render.com']
 
 BASE_URL = config('BASE_URL', default='http://localhost:3000')
@@ -100,6 +110,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '60/minute',
+        'user': '200/minute',
+        'widget_chat': '20/minute',
+    },
 }
 
 SIMPLE_JWT = {
@@ -124,3 +143,18 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:3001',
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+#Email deliverability validation
+ABSTRACT_API_KEY = config('ABSTRACT_API_KEY', default='')
+
+# Email defaults to console backend so dev requires no SMTP config
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='RAGBot <noreply@ragbot.com>')
+
+# Frontend base URL — used to build email verification + password reset links
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3001')

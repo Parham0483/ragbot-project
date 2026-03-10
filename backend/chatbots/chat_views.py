@@ -10,6 +10,8 @@ from chatbots.models import Chatbot, Conversation, Message
 from services.rag_service import rag_service
 from accounts.utils import get_monthly_usage
 
+MAX_MESSAGE_LENGTH = 2000
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anonymous users to chat
@@ -25,6 +27,19 @@ def chat_endpoint(request, chatbot_id):
                 {'error': 'Message cannot be empty'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        if len(user_message) > MAX_MESSAGE_LENGTH:
+            return Response(
+                {'error': f'Message exceeds {MAX_MESSAGE_LENGTH} character limit'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Enforce monthly quota before touching the DB
+        if request.user.is_authenticated:
+            if get_monthly_usage(request.user) >= request.user.max_queries_per_month:
+                return Response(
+                    {'error': 'Monthly message limit reached. Please upgrade your plan.'},
+                    status=status.HTTP_429_TOO_MANY_REQUESTS
+                )
 
         # Get or create conversation
         conversation_id = request.data.get('conversation_id')
@@ -35,7 +50,6 @@ def chat_endpoint(request, chatbot_id):
                 chatbot=chatbot
             )
         else:
-            # Create new conversation
             conversation = Conversation.objects.create(
                 chatbot=chatbot,
                 user=request.user if request.user.is_authenticated else None,
@@ -48,14 +62,6 @@ def chat_endpoint(request, chatbot_id):
             role='user',
             content=user_message
         )
-
-        # Enforce monthly query limit for authenticated owners
-        if request.user.is_authenticated:
-            if get_monthly_usage(request.user) >= request.user.max_queries_per_month:
-                return Response(
-                    {'error': 'Monthly message limit reached. Please upgrade your plan.'},
-                    status=status.HTTP_429_TOO_MANY_REQUESTS
-                )
 
         # Get conversation history (last 5 messages for context)
         history = []
