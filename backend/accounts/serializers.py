@@ -35,8 +35,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'username', 'first_name', 'last_name', 'full_name', 'organization',
                   'phone', 'plan', 'max_chatbots', 'chatbot_count', 'can_create_chatbot', 'created_at',
-                  'gravatar_url']
-        read_only_fields = ['id', 'email', 'plan', 'created_at', 'gravatar_url']
+                  'gravatar_url', 'is_email_verified']
+        read_only_fields = ['id', 'email', 'plan', 'created_at', 'gravatar_url', 'is_email_verified']
 
     def get_gravatar_url(self, obj):
         email_hash = hashlib.md5(obj.email.lower().encode()).hexdigest()
