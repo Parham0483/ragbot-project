@@ -5,6 +5,9 @@ import ProtectedRoute from './components/Layout/ProtectedRoute';
 import AppLayout from './components/Layout/AppLayout';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import VerifyEmail from './components/Auth/VerifyEmail';
+import ForgotPassword from './components/Auth/ForgotPassword';
+import ResetPassword from './components/Auth/ResetPassword';
 import Dashboard from './components/Dashboard/Dashboard';
 import CreateChatbot from './components/Chatbots/CreateChatbot';
 import ChatbotDetail from './components/Chatbots/ChatbotDetail';
@@ -27,6 +30,9 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard"     element={<AppRoute><Dashboard /></AppRoute>} />
           <Route path="/create-chatbot" element={<AppRoute><CreateChatbot /></AppRoute>} />
           <Route path="/chatbot/:id"   element={<AppRoute><ChatbotDetail /></AppRoute>} />

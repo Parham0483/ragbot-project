@@ -21,6 +21,9 @@ export const authAPI = {
   login: (credentials) => api.post('/auth/login/', credentials),
   register: (data) => api.post('/auth/register/', data),
   getProfile: () => api.get('/auth/profile/'),
+  verifyEmail: (data) => api.post('/auth/verify-email/', data),
+  passwordResetRequest: (data) => api.post('/auth/password-reset-request/', data),
+  passwordResetConfirm: (data) => api.post('/auth/password-reset-confirm/', data),
 };
 
 export const chatbotAPI = {
