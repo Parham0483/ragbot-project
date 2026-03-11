@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Container, Box, TextField, Button, Typography, Alert } from '@mui/material';
 
@@ -9,6 +9,8 @@ function Login() {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const successMessage = location.state?.successMessage || '';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,6 +27,7 @@ function Login() {
     <Container maxWidth="sm">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography variant="h4" gutterBottom>RAGBot Login</Typography>
+        {successMessage && <Alert severity="success" sx={{ width: '100%', mb: 2 }}>{successMessage}</Alert>}
         {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
           <TextField
@@ -48,6 +51,9 @@ function Login() {
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
             Login
           </Button>
+          <Typography align="center" sx={{ mb: 1 }}>
+            <Link to="/forgot-password">Forgot password?</Link>
+          </Typography>
           <Typography align="center">
             Don't have an account? <Link to="/register">Register</Link>
           </Typography>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Container, Box, TextField, Button, Typography, Alert, Grid } from '@mui/material';
 
@@ -13,8 +13,8 @@ function Register() {
     password_confirm: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const { register } = useAuth();
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,7 +23,7 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (formData.password !== formData.password_confirm) {
       setError("Passwords don't match");
       return;
@@ -31,15 +31,30 @@ function Register() {
 
     try {
       await register(formData);
-      navigate('/dashboard');
+      setSuccess(true);
     } catch (err) {
-      const errorMsg = err.response?.data?.password?.[0] 
-        || err.response?.data?.email?.[0]
+      const errorMsg = err.response?.data?.email?.[0]
+        || err.response?.data?.password?.[0]
         || err.response?.data?.username?.[0]
         || 'Registration failed. Please check all fields.';
       setError(errorMsg);
     }
   };
+
+  if (success) {
+    return (
+      <Container maxWidth="sm">
+        <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Alert severity="info" sx={{ width: '100%', mb: 2 }}>
+            Account created! Please check your email to verify your account before logging in.
+          </Alert>
+          <Typography align="center">
+            <Link to="/login">Back to Login</Link>
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="sm">
@@ -50,66 +65,39 @@ function Register() {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
-                required
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
+                required fullWidth label="Email" name="email" type="email"
+                value={formData.email} onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
-                required
-                fullWidth
-                label="Username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
+                required fullWidth label="Username" name="username"
+                value={formData.username} onChange={handleChange}
               />
             </Grid>
             <Grid item xs={6}>
               <TextField
-                required
-                fullWidth
-                label="First Name"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleChange}
+                required fullWidth label="First Name" name="first_name"
+                value={formData.first_name} onChange={handleChange}
               />
             </Grid>
             <Grid item xs={6}>
               <TextField
-                required
-                fullWidth
-                label="Last Name"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleChange}
+                required fullWidth label="Last Name" name="last_name"
+                value={formData.last_name} onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
-                required
-                fullWidth
-                label="Password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
+                required fullWidth label="Password" name="password" type="password"
+                value={formData.password} onChange={handleChange}
                 helperText="Minimum 8 characters"
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
-                required
-                fullWidth
-                label="Confirm Password"
-                name="password_confirm"
-                type="password"
-                value={formData.password_confirm}
-                onChange={handleChange}
+                required fullWidth label="Confirm Password" name="password_confirm" type="password"
+                value={formData.password_confirm} onChange={handleChange}
               />
             </Grid>
           </Grid>

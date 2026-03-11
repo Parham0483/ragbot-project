@@ -29,11 +29,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (data) => {
+    // user must verify email first.
     const response = await authAPI.register(data);
+    return response.data;
+  };
+
+  const verifyEmailAndLogin = async ({ token, uid }) => {
+    const response = await authAPI.verifyEmail({ token, uid });
     localStorage.setItem('access_token', response.data.tokens.access);
     localStorage.setItem('refresh_token', response.data.tokens.refresh);
     setUser(response.data.user);
-    return response.data.user;
+    return response.data;
   };
 
   const logout = () => {
@@ -43,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, verifyEmailAndLogin, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
