@@ -158,3 +158,9 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='RAGBot <noreply@ragbo
 
 # Frontend base URL — used to build email verification + password reset links
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3001')
+
+# Google OAuth
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+
+# ID of the public-facing website assistant chatbot (seeded via seed_website_bot command)
+WEBSITE_BOT_ID = config('WEBSITE_BOT_ID', default=None, cast=lambda v: int(v) if v else None)

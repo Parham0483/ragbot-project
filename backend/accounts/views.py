@@ -15,6 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
+import requests as http_requests
 
 from .serializers import UserRegistrationSerializer, UserSerializer, UserUpdateSerializer
 from .utils import get_monthly_usage, validate_email_deliverable
@@ -247,6 +248,63 @@ def usage_view(request):
         'messages_remaining': max(0, limit - used),
         'reset_date': reset.strftime('%Y-%m-%d'),
     })
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def google_login_view(request):
+    access_token = request.data.get('credential', '').strip()
+    if not access_token:
+        return Response({'error': 'Google token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Verify the access_token with Google's tokeninfo endpoint
+    try:
+        resp = http_requests.get(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            headers={'Authorization': f'Bearer {access_token}'},
+            timeout=5,
+        )
+        if resp.status_code != 200:
+            return Response({'error': 'Invalid Google token.'}, status=status.HTTP_400_BAD_REQUEST)
+        id_info = resp.json()
+    except http_requests.RequestException:
+        return Response({'error': 'Could not verify Google token.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    email = id_info.get('email', '').lower()
+    if not email:
+        return Response({'error': 'Google account has no email address.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not id_info.get('email_verified'):
+        return Response({'error': 'Google account email is not verified.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    first_name = id_info.get('given_name', '')
+    last_name = id_info.get('family_name', '')
+
+    user, created = User.objects.get_or_create(
+        email=email,
+        defaults={
+            'username': email.split('@')[0],
+            'first_name': first_name,
+            'last_name': last_name,
+            'is_email_verified': True,
+        },
+    )
+
+    if created:
+        user.set_unusable_password()
+        user.save(update_fields=['password'])
+    elif not user.is_email_verified:
+        user.is_email_verified = True
+        user.save(update_fields=['is_email_verified'])
+
+    user.last_login_at = timezone.now()
+    user.save(update_fields=['last_login_at'])
+
+    return Response({
+        'tokens': _issue_tokens(user),
+        'user': UserSerializer(user).data,
+        'created': created,
+    }, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

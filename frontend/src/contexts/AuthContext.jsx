@@ -28,6 +28,14 @@ export const AuthProvider = ({ children }) => {
     return profile.data;
   };
 
+  const loginWithGoogle = async (credential) => {
+    const response = await authAPI.googleLogin(credential);
+    localStorage.setItem('access_token', response.data.tokens.access);
+    localStorage.setItem('refresh_token', response.data.tokens.refresh);
+    setUser(response.data.user);
+    return response.data;
+  };
+
   const register = async (data) => {
     // user must verify email first.
     const response = await authAPI.register(data);
@@ -49,7 +57,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, verifyEmailAndLogin, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, loginWithGoogle, register, verifyEmailAndLogin, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

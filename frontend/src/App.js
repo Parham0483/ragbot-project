@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/Layout/ProtectedRoute';
 import AppLayout from './components/Layout/AppLayout';
@@ -25,6 +26,7 @@ function AppRoute({ children }) {
 
 function App() {
   return (
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -42,6 +44,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 
