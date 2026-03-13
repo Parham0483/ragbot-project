@@ -24,6 +24,7 @@ export const authAPI = {
   verifyEmail: (data) => api.post('/auth/verify-email/', data),
   passwordResetRequest: (data) => api.post('/auth/password-reset-request/', data),
   passwordResetConfirm: (data) => api.post('/auth/password-reset-confirm/', data),
+  googleLogin: (credential) => api.post('/auth/google/', { credential }),
 };
 
 export const chatbotAPI = {
@@ -57,6 +58,14 @@ export const analyticsAPI = {
     api.get('/analytics/overview/frequent-questions/', { params: days ? { days } : {} }),
   overviewSummary: (days) =>
     api.get('/analytics/overview/summary/', { params: days ? { days } : {} }),
+};
+
+export const widgetAPI = {
+  chat: (botId, message, conversationId) =>
+    axios.post(`${API_URL}/widget/${botId}/chat/`, {
+      message,
+      ...(conversationId ? { conversation_id: conversationId } : {}),
+    }),
 };
 
 export default api;

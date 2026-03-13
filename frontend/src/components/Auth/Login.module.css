@@ -1,0 +1,330 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+/* ── Navbar ── */
+.navbar {
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 40px;
+  flex-shrink: 0;
+}
+
+.logoImg {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 10px;
+}
+
+.navBrand {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.subheading {
+  font-size: 15px;
+  color: #666;
+  margin: 0 0 32px;
+  text-align: center;
+}
+
+/* ── Card ── */
+.card {
+  display: flex;
+  width: 1040px;
+  max-width: 100%;
+  height: 584px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Left panel ── */
+.left {
+  flex: 536px 0 0;
+  width: 536px;
+  background: #111;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.watermark {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.04);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  padding-top: 20px;
+  letter-spacing: -2px;
+}
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.84);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 10px;
+  height: 52px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 28px;
+  transition: background 0.15s;
+}
+
+.googleBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.googleBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.googleSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(26, 26, 26, 0.2);
+  border-top-color: #1a1a1a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0 0 28px;
+}
+
+.fieldLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.84);
+  margin-bottom: 8px;
+}
+
+.fieldInput {
+  width: 100%;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0 14px;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 14px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.fieldInput::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.fieldInput:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.fieldInput.error {
+  border-color: #b10000;
+}
+
+.forgotLink {
+  font-size: 13px;
+  color: #888;
+  text-decoration: none;
+  margin-top: -12px;
+  margin-bottom: 28px;
+  display: inline-block;
+  transition: color 0.15s;
+}
+
+.forgotLink:hover {
+  color: #bbb;
+}
+
+.loginBtn {
+  width: 100%;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.84);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.loginBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.loginBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorAlert {
+  background: rgba(177, 0, 0, 0.15);
+  border: 1px solid rgba(177, 0, 0, 0.4);
+  color: #ff6b6b;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.successAlert {
+  background: rgba(34, 139, 34, 0.15);
+  border: 1px solid rgba(34, 139, 34, 0.4);
+  color: #6fcf97;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ── Right panel ── */
+.right {
+  flex: 1;
+  background: linear-gradient(157deg, #d4a8f0 0%, #f8c0c8 100%);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.signupBtn {
+  align-self: flex-end;
+  background: #1a1a1a;
+  color: rgba(255, 255, 255, 0.84);
+  border: none;
+  border-radius: 50px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 32px;
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.15s;
+}
+
+.signupBtn:hover {
+  opacity: 0.85;
+}
+
+/* ── Footer ── */
+.footer {
+  height: 44px;
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  flex-shrink: 0;
+}
+
+.footerBrand {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.footerCopy {
+  font-size: 12px;
+  color: #999;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1080px) {
+  .card {
+    height: auto;
+    flex-direction: column;
+  }
+
+  .left {
+    flex: none;
+    width: 100%;
+    padding: 40px 32px;
+  }
+
+  .right {
+    display: none;
+  }
+
+  .watermark {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar,
+  .footer {
+    padding: 0 20px;
+  }
+
+  .left {
+    padding: 32px 24px;
+  }
+
+  .heading {
+    font-size: 22px;
+  }
+}
