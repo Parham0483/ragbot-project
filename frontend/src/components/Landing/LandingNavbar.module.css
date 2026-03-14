@@ -1,0 +1,90 @@
+.navbar {
+  height: 80px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  padding: 0 48px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: box-shadow 0.3s ease;
+}
+
+.scrolled {
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  border-bottom-color: transparent;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  margin-right: 48px;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.brandName {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex: 1;
+}
+
+.link {
+  font-size: 15px;
+  color: #1a1a1a;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.link:hover {
+  color: #555;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.signup {
+  font-size: 15px;
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.loginBtn {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.loginBtn:hover {
+  background: #333;
+}
+
+@media (max-width: 900px) {
+  .navbar { padding: 0 24px; }
+  .links { display: none; }
+}
