@@ -5,7 +5,7 @@ import {
   Box, Card, CardContent, Typography, LinearProgress, Select,
   MenuItem, FormControl, CircularProgress, Grid,
 } from '@mui/material';
-import { CalendarToday } from '@mui/icons-material';
+import { CalendarToday, Speed } from '@mui/icons-material';
 import css from './Analytics.module.css';
 import {
   BarChart, Bar, XAxis, CartesianGrid, Tooltip,
@@ -54,6 +54,31 @@ function CircularStatCard({ value, max, label }) {
       </CardContent>
     </Card>
   );
+}
+
+function MetricCard({ icon, value, label }) {
+  return (
+    <Card sx={{ border: '1px solid #E0E0E0', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', bgcolor: '#fff' }}>
+      <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 3, py: '20px !important' }}>
+        <Box sx={{
+          width: 72, height: 72, flexShrink: 0, borderRadius: '50%',
+          bgcolor: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {icon}
+        </Box>
+        <Box>
+          <Typography variant="h4" fontWeight="bold" sx={{ color: DARK, lineHeight: 1 }}>{value}</Typography>
+          <Typography variant="body2" sx={{ color: '#666', mt: 0.5 }}>{label}</Typography>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+}
+
+function formatResponseTime(ms) {
+  if (ms === null || ms === undefined) return '—';
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
 }
 
 function BarTopLabel({ x, y, width, value }) {
@@ -167,11 +192,18 @@ function Analytics() {
 
       {/* ── Stat cards ── */}
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={4}>
           <CircularStatCard value={totalMessages} max={creditsMax} label="Credits used" />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={4}>
           <CircularStatCard value={overallStats.active} max={overallStats.total} label="Agents" />
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <MetricCard
+            icon={<Speed sx={{ fontSize: 32, color: DARK }} />}
+            value={formatResponseTime(summary?.avg_response_time_ms)}
+            label="Avg response time"
+          />
         </Grid>
       </Grid>
 

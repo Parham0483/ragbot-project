@@ -168,8 +168,14 @@ def overview_summary(request):
         Chatbot.objects.filter(owner=request.user)
         .aggregate(total=Count('conversations'))['total'] or 0
     )
+    avg_rt = Message.objects.filter(
+        conversation__chatbot__owner=request.user,
+        role='assistant',
+        response_time_ms__isnull=False,
+    ).aggregate(avg=Avg('response_time_ms'))['avg']
     return Response({
         'total_messages': total_messages,
         'total_conversations': total_conversations,
+        'avg_response_time_ms': round(avg_rt) if avg_rt is not None else None,
         'chatbot_name': 'All Agents',
     })
