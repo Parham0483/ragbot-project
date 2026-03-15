@@ -25,6 +25,10 @@ export const authAPI = {
   passwordResetRequest: (data) => api.post('/auth/password-reset-request/', data),
   passwordResetConfirm: (data) => api.post('/auth/password-reset-confirm/', data),
   googleLogin: (credential) => api.post('/auth/google/', { credential }),
+  updateProfile: (data) => api.patch('/auth/profile/update/', data),
+  deleteAccount: () => api.delete('/auth/delete/'),
+  emailChangeRequest: (new_email) => api.post('/auth/email-change/request/', { new_email }),
+  emailChangeConfirm: (otp) => api.post('/auth/email-change/confirm/', { otp }),
 };
 
 export const chatbotAPI = {

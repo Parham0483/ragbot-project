@@ -11,8 +11,14 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('access_token');
     if (token) {
       authAPI.getProfile()
-        .then(res => setUser(res.data))
-        .catch(() => logout())
+        .then(res => {
+          console.log('[AuthContext] getProfile:', res.data?.email, '| first_name:', res.data?.first_name);
+          setUser(res.data);
+        })
+        .catch((err) => {
+          console.error('[AuthContext] getProfile failed:', err.response?.status);
+          logout();
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -57,7 +63,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, loginWithGoogle, register, verifyEmailAndLogin, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, loginWithGoogle, register, verifyEmailAndLogin, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

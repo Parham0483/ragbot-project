@@ -43,6 +43,16 @@ class UserSerializer(serializers.ModelSerializer):
         return f"https://www.gravatar.com/avatar/{email_hash}?d=identicon&s=80"
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    # email is optional on update — validated for uniqueness against other users
+    email = serializers.EmailField(required=False)
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'organization', 'phone', 'openai_api_key']
+        fields = ['first_name', 'last_name', 'organization', 'phone', 'openai_api_key', 'email']
+
+    def validate_email(self, value):
+        value = value.lower()
+        qs = User.objects.filter(email=value).exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError('A user with this email already exists.')
+        return value

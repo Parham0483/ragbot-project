@@ -5,7 +5,8 @@ from .views import (
     logout_view, usage_view,
     verify_email_view,
     password_reset_request_view, password_reset_confirm_view,
-    google_login_view,
+    google_login_view, delete_account_view,
+    email_change_request_view, email_change_confirm_view,
 )
 
 app_name = 'accounts'
@@ -22,4 +23,7 @@ urlpatterns = [
     path('password-reset-request/', password_reset_request_view, name='password-reset-request'),
     path('password-reset-confirm/', password_reset_confirm_view, name='password-reset-confirm'),
     path('google/', google_login_view, name='google-login'),
+    path('delete/', delete_account_view, name='delete-account'),
+    path('email-change/request/', email_change_request_view, name='email-change-request'),
+    path('email-change/confirm/', email_change_confirm_view, name='email-change-confirm'),
 ]

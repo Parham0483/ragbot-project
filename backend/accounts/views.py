@@ -1,4 +1,5 @@
 import secrets
+import random
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -228,6 +229,11 @@ class UserUpdateView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user
 
+    def update(self, request, *args, **kwargs):
+        # save the update then return the full profile so frontend stays in sync
+        super().update(request, *args, **kwargs)
+        return Response(UserSerializer(self.get_object()).data)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -248,6 +254,15 @@ def usage_view(request):
         'messages_remaining': max(0, limit - used),
         'reset_date': reset.strftime('%Y-%m-%d'),
     })
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_account_view(request):
+    # permanently removes the authenticated user and all their data
+    user = request.user
+    user.delete()
+    return Response({'message': 'Account deleted.'}, status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['POST'])
@@ -305,6 +320,70 @@ def google_login_view(request):
         'user': UserSerializer(user).data,
         'created': created,
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def email_change_request_view(request):
+    new_email = request.data.get('new_email', '').strip().lower()
+    if not new_email:
+        return Response({'error': 'new_email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # make sure email isn't already taken
+    if User.objects.filter(email=new_email).exclude(pk=request.user.pk).exists():
+        return Response({'error': 'That email is already in use.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    otp = str(random.randint(100000, 999999))
+    expires = timezone.now() + timedelta(minutes=15)
+
+    request.user.email_change_pending = new_email
+    request.user.email_change_otp = otp
+    request.user.email_change_otp_expires = expires
+    request.user.save(update_fields=['email_change_pending', 'email_change_otp', 'email_change_otp_expires'])
+
+    send_mail(
+        subject='Your email change code',
+        message=(
+            f"Hi {request.user.first_name or request.user.username},\n\n"
+            f"Your verification code to change your email is:\n\n"
+            f"  {otp}\n\n"
+            f"This code expires in 15 minutes. If you did not request this, ignore this email.\n\n"
+            f"— The RAGBot Team"
+        ),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[new_email],
+        fail_silently=True,
+    )
+
+    return Response({'message': 'Verification code sent to your new email address.'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def email_change_confirm_view(request):
+    otp = request.data.get('otp', '').strip()
+    if not otp:
+        return Response({'error': 'otp is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = request.user
+
+    if not user.email_change_otp or not user.email_change_pending:
+        return Response({'error': 'No email change in progress.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if timezone.now() > user.email_change_otp_expires:
+        return Response({'error': 'Code has expired. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if user.email_change_otp != otp:
+        return Response({'error': 'Incorrect code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # swap email and clear the pending fields
+    user.email = user.email_change_pending
+    user.email_change_pending = None
+    user.email_change_otp = None
+    user.email_change_otp_expires = None
+    user.save(update_fields=['email', 'email_change_pending', 'email_change_otp', 'email_change_otp_expires'])
+
+    return Response({'message': 'Email updated successfully.', 'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

@@ -21,6 +21,10 @@ class User(AbstractUser):
     password_reset_token = models.CharField(max_length=64, blank=True, null=True)
     password_reset_token_expires = models.DateTimeField(null=True, blank=True)
 
+    email_change_pending = models.EmailField(blank=True, null=True)
+    email_change_otp = models.CharField(max_length=6, blank=True, null=True)
+    email_change_otp_expires = models.DateTimeField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_login_at = models.DateTimeField(null=True, blank=True)

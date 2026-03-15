@@ -1,0 +1,245 @@
+.page {
+  max-width: 960px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Cards ── */
+.card {
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.dangerCard {
+  border-color: #B10000;
+}
+
+.cardTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 4px;
+}
+
+.dangerTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: #B10000;
+  margin: 0 0 4px;
+}
+
+.cardSub {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #E0E0E0;
+  margin: 16px 0;
+}
+
+/* ── Avatar row ── */
+.avatarRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #E0E0E0;
+}
+
+.uploadBtn {
+  padding: 7px 20px;
+  background: #1A1A1A;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.uploadBtn:hover {
+  background: #333;
+}
+
+/* ── Form fields ── */
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+}
+
+.input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1A1A1A;
+  background: #FAFAFA;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: #1A1A1A;
+  background: #fff;
+}
+
+/* ── Card footer (save button row) ── */
+.cardFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.saveBtn {
+  padding: 8px 24px;
+  background: #1A1A1A;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #333;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.deleteBtn {
+  padding: 8px 24px;
+  background: #B10000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  background: #8a0000;
+}
+
+.deleteBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.successMsg {
+  font-size: 13px;
+  color: #2e7d32;
+  margin: 8px 0 0;
+}
+
+.errorMsg {
+  font-size: 13px;
+  color: #B10000;
+  margin: 8px 0 0;
+}
+
+/* ── Right: preview ── */
+.right {
+  position: sticky;
+  top: 0;
+}
+
+.previewTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 4px;
+}
+
+.previewSub {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 16px;
+}
+
+.previewCard {
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.previewAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #E0E0E0;
+}
+
+.previewName {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0;
+}
+
+.previewEmail {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+.previewBadge {
+  margin-top: 4px;
+  padding: 4px 14px;
+  background: #1A1A1A;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
