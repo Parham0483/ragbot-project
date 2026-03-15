@@ -35,7 +35,7 @@
   display: flex;
   width: 1040px;
   max-width: 100%;
-  height: 584px;
+  height: 620px;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
@@ -46,7 +46,7 @@
   flex: 536px 0 0;
   width: 536px;
   background: #111;
-  padding: 48px;
+  padding: 40px 48px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -83,6 +83,7 @@
   width: 100%;
   margin-bottom: 28px;
   transition: background 0.15s;
+  font-family: inherit;
 }
 
 .googleBtn:hover:not(:disabled) {
@@ -92,6 +93,12 @@
 .googleBtn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .googleSpinner {
@@ -108,16 +115,10 @@
   to { transform: rotate(360deg); }
 }
 
-.googleIcon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
 .divider {
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
-  margin: 0 0 28px;
+  margin: 0 0 24px;
 }
 
 .fieldLabel {
@@ -137,7 +138,7 @@
   padding: 0 14px;
   color: rgba(255, 255, 255, 0.84);
   font-size: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   outline: none;
   transition: border-color 0.15s;
   font-family: inherit;
@@ -156,21 +157,7 @@
   border-color: #b10000;
 }
 
-.forgotLink {
-  font-size: 13px;
-  color: #888;
-  text-decoration: none;
-  margin-top: -12px;
-  margin-bottom: 28px;
-  display: inline-block;
-  transition: color 0.15s;
-}
-
-.forgotLink:hover {
-  color: #bbb;
-}
-
-.loginBtn {
+.submitBtn {
   width: 100%;
   height: 52px;
   background: rgba(255, 255, 255, 0.84);
@@ -183,15 +170,34 @@
   letter-spacing: 0.3px;
   transition: background 0.15s;
   font-family: inherit;
+  margin-top: 4px;
+  margin-bottom: 16px;
 }
 
-.loginBtn:hover:not(:disabled) {
+.submitBtn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.95);
 }
 
-.loginBtn:disabled {
+.submitBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.loginPrompt {
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+}
+
+.loginLink {
+  color: rgba(255, 255, 255, 0.84);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.loginLink:hover {
+  color: #fff;
 }
 
 .errorAlert {
@@ -201,7 +207,7 @@
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 13px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .successAlert {
@@ -209,22 +215,29 @@
   border: 1px solid rgba(34, 139, 34, 0.4);
   color: #6fcf97;
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   font-size: 13px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  line-height: 1.5;
 }
 
-/* ── Right panel ── */
+/* ── Right panel — dotted purple grid ── */
 .right {
   flex: 1;
-  background: linear-gradient(157deg, #d4a8f0 0%, #f8c0c8 100%);
   padding: 32px;
   display: flex;
   flex-direction: column;
   position: relative;
+  /* Dotted grid background matching reference */
+  background-color: #d8c8f0;
+  background-image:
+    radial-gradient(ellipse at top left, rgba(160, 100, 230, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(180, 210, 245, 0.5) 0%, transparent 60%),
+    radial-gradient(circle, rgba(140, 90, 200, 0.35) 1.5px, transparent 1.5px);
+  background-size: auto, auto, 22px 22px;
 }
 
-.signupBtn {
+.loginBtn {
   align-self: flex-end;
   background: #1a1a1a;
   color: rgba(255, 255, 255, 0.84);
@@ -234,14 +247,24 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
   text-decoration: none;
   display: inline-block;
   transition: opacity 0.15s;
 }
 
-.signupBtn:hover {
+.loginBtn:hover {
   opacity: 0.85;
+}
+
+/* Chat container — fills remaining space */
+.chatBox {
+  flex: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Footer ── */
@@ -290,15 +313,7 @@
 }
 
 @media (max-width: 480px) {
-  .footer {
-    padding: 0 20px;
-  }
-
-  .left {
-    padding: 32px 24px;
-  }
-
-  .heading {
-    font-size: 22px;
-  }
+  .footer { padding: 0 20px; }
+  .left { padding: 32px 24px; }
+  .heading { font-size: 22px; }
 }

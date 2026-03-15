@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../contexts/AuthContext';
+import LandingNavbar from '../Landing/LandingNavbar';
 import styles from './Login.module.css';
 import WebsiteChat from './WebsiteChat';
-
-const csLogoSrc = '/cs-logo.png';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -54,11 +53,7 @@ function Login() {
   return (
     <div className={styles.page}>
 
-      {/* Navbar */}
-      <nav className={styles.navbar}>
-        <img src={csLogoSrc} alt="CS" className={styles.logoImg} />
-        <span className={styles.navBrand}>Smart Chat</span>
-      </nav>
+      <LandingNavbar />
 
       {/* Main */}
       <main className={styles.main}>
