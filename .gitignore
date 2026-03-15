@@ -48,3 +48,4 @@ tests/
 # Root-level package.json/lock created by playwright install
 package.json
 package-lock.json
+.claude/sessions/

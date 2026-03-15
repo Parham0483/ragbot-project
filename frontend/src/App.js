@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/Layout/ProtectedRoute';
@@ -14,6 +14,9 @@ import CreateChatbot from './components/Chatbots/CreateChatbot';
 import ChatbotDetail from './components/Chatbots/ChatbotDetail';
 import ChatInterface from './components/Chatbots/ChatInterface';
 import Analytics from './components/Analytics/Analytics';
+import GeneralSettings from './components/Settings/GeneralSettings';
+import HomePage from './components/Landing/HomePage';
+import PricingPage from './components/Landing/PricingPage';
 
 // wraps a page in both auth guard and the shared sidebar/navbar layout
 function AppRoute({ children }) {
@@ -39,8 +42,10 @@ function App() {
           <Route path="/create-chatbot" element={<AppRoute><CreateChatbot /></AppRoute>} />
           <Route path="/chatbot/:id"   element={<AppRoute><ChatbotDetail /></AppRoute>} />
           <Route path="/chat/:id"      element={<AppRoute><ChatInterface /></AppRoute>} />
-          <Route path="/analytics"     element={<AppRoute><Analytics /></AppRoute>} />
-          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/analytics"          element={<AppRoute><Analytics /></AppRoute>} />
+          <Route path="/settings/general"  element={<AppRoute><GeneralSettings /></AppRoute>} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/pricing" element={<PricingPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

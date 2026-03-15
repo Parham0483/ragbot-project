@@ -18,7 +18,8 @@ export default function AppLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed]     = useState(false);
-  const [settingOpen, setSettingOpen] = useState(false);
+  const onSettingsPath = location.pathname.startsWith('/settings');
+  const [settingOpen, setSettingOpen] = useState(onSettingsPath);
 
   const isActive = (path) => {
     if (path === '/dashboard') {
@@ -69,14 +70,27 @@ export default function AppLayout({ children }) {
             ))}
 
             {/* Setting — expandable */}
-            <div className={styles.settingRow} onClick={() => setSettingOpen(v => !v)}>
+            <div
+              className={`${styles.settingRow} ${onSettingsPath ? styles.navItemActive : ''}`}
+              onClick={() => setSettingOpen(v => !v)}
+            >
               <Settings className={styles.navItemIcon} />
               <span className={styles.settingLabel}>Setting</span>
               {settingOpen ? <ExpandLess sx={{ fontSize: 16 }} /> : <ExpandMore sx={{ fontSize: 16 }} />}
             </div>
             <Collapse in={settingOpen}>
-              {['General', 'Plans', 'API Keys'].map(sub => (
-                <div key={sub} className={styles.subItem}>{sub}</div>
+              {[
+                { label: 'General',  path: '/settings/general'  },
+                { label: 'Plans',    path: '/settings/plans'    },
+                { label: 'API Keys', path: '/settings/api-keys' },
+              ].map(({ label, path }) => (
+                <div
+                  key={label}
+                  onClick={() => navigate(path)}
+                  className={`${styles.subItem} ${location.pathname === path ? styles.subItemActive : ''}`}
+                >
+                  {label}
+                </div>
               ))}
             </Collapse>
           </div>

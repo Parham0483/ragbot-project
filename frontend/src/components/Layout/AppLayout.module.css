@@ -171,6 +171,11 @@
   background: #F7F7F7;
 }
 
+.subItemActive {
+  color: #B10000;
+  font-weight: 600;
+}
+
 .collapseBtn {
   display: flex;
   justify-content: center;
