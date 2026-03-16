@@ -121,7 +121,7 @@ def chatbot_summary(request, chatbot_id):
     })
 
 
-# ── Overview endpoints (aggregate across ALL user chatbots) ──
+#  Overview endpoints (aggregate across ALL user chatbots)
 
 def _user_messages(user, days):
     """User messages across all chatbots, optionally date-filtered."""
