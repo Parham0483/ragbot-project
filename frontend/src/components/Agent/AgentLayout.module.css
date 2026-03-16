@@ -1,0 +1,249 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  font-family: inherit;
+}
+
+/* ── Navbar ── */
+.navbar {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.navbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+
+.planLabel {
+  font-size: 13px;
+  color: #666;
+}
+
+.upgradeBtn {
+  padding: 5px 14px;
+  background: #1A1A1A;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.upgradeBtn:hover {
+  background: #333;
+}
+
+.navbarRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1A1A1A;
+}
+
+/* ── Body ── */
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Agent Sidebar ── */
+.sidebar {
+  width: 200px;
+  min-width: 200px;
+  background: #EBEBEB;
+  border-right: 1px solid #E0E0E0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.22s ease, min-width 0.22s ease;
+  flex-shrink: 0;
+}
+
+.sidebarCollapsed {
+  width: 0;
+  min-width: 0;
+}
+
+.navList {
+  flex: 1;
+  padding-top: 12px;
+  overflow: hidden;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  color: #555;
+  font-size: 14px;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.navItem:hover {
+  background: #E0E0E0;
+}
+
+.navItemActive {
+  border-left-color: #B10000;
+  color: #B10000;
+  font-weight: 600;
+}
+
+.navItemIcon {
+  font-size: 20px !important;
+  flex-shrink: 0;
+}
+
+/* Config expandable row */
+.configRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  color: #555;
+  font-size: 14px;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.configRow:hover {
+  background: #E0E0E0;
+}
+
+.configLabel {
+  flex: 1;
+}
+
+.subItem {
+  padding: 7px 16px 7px 50px;
+  cursor: pointer;
+  color: #666;
+  font-size: 13px;
+  transition: background 0.12s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subItem:hover {
+  background: #E0E0E0;
+}
+
+.subItemActive {
+  color: #B10000;
+  font-weight: 600;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.collapseBtn {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.expandBtn {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 0 6px 6px 0;
+  z-index: 100;
+  cursor: pointer;
+  padding: 6px 4px;
+  display: flex;
+  align-items: center;
+}
+
+.expandBtn:hover {
+  background: #F5F5F5;
+}
+
+/* ── Content ── */
+.content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #F5F5F5;
+}
+
+/* ── Footer ── */
+.footer {
+  height: 44px;
+  background: #fff;
+  border-top: 1px solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.footerBrand {
+  width: 200px;
+  min-width: 200px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A1A1A;
+  border-right: 1px solid #E0E0E0;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: width 0.22s ease, min-width 0.22s ease, padding 0.22s ease;
+}
+
+.footerBrandCollapsed {
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  border-right: none;
+}
+
+.footerCopy {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: #aaa;
+  letter-spacing: 0.2px;
+}
