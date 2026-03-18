@@ -36,6 +36,7 @@ export const chatbotAPI = {
   create: (data) => api.post('/chatbots/', data),
   get: (id) => api.get(`/chatbots/${id}/`),
   update: (id, data) => api.put(`/chatbots/${id}/`, data),
+  patch: (id, data) => api.patch(`/chatbots/${id}/`, data),
   delete: (id) => api.delete(`/chatbots/${id}/`),
 };
 

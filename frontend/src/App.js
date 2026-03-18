@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/Layout/ProtectedRoute';
@@ -11,12 +11,21 @@ import ForgotPassword from './components/Auth/ForgotPassword';
 import ResetPassword from './components/Auth/ResetPassword';
 import Dashboard from './components/Dashboard/Dashboard';
 import CreateChatbot from './components/Chatbots/CreateChatbot';
-import ChatbotDetail from './components/Chatbots/ChatbotDetail';
 import ChatInterface from './components/Chatbots/ChatInterface';
 import Analytics from './components/Analytics/Analytics';
 import GeneralSettings from './components/Settings/GeneralSettings';
 import HomePage from './components/Landing/HomePage';
 import PricingPage from './components/Landing/PricingPage';
+
+// Per-agent layout and tabs
+import AgentLayout from './components/Agent/AgentLayout';
+import PlaygroundTab from './components/Agent/PlaygroundTab';
+import ActionsTab from './components/Agent/ActionsTab';
+import AgentAnalyticsTab from './components/Agent/AgentAnalyticsTab';
+import CompareTab from './components/Agent/CompareTab';
+import GeneralConfig from './components/Agent/GeneralConfig';
+import UISettingConfig from './components/Agent/UISettingConfig';
+import AIModelsConfig from './components/Agent/AIModelsConfig';
 
 // wraps a page in both auth guard and the shared sidebar/navbar layout
 function AppRoute({ children }) {
@@ -38,12 +47,27 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/dashboard"     element={<AppRoute><Dashboard /></AppRoute>} />
+          <Route path="/dashboard"      element={<AppRoute><Dashboard /></AppRoute>} />
           <Route path="/create-chatbot" element={<AppRoute><CreateChatbot /></AppRoute>} />
-          <Route path="/chatbot/:id"   element={<AppRoute><ChatbotDetail /></AppRoute>} />
-          <Route path="/chat/:id"      element={<AppRoute><ChatInterface /></AppRoute>} />
-          <Route path="/analytics"          element={<AppRoute><Analytics /></AppRoute>} />
-          <Route path="/settings/general"  element={<AppRoute><GeneralSettings /></AppRoute>} />
+          <Route path="/chat/:id"       element={<AppRoute><ChatInterface /></AppRoute>} />
+          <Route path="/analytics"      element={<AppRoute><Analytics /></AppRoute>} />
+          <Route path="/settings/general" element={<AppRoute><GeneralSettings /></AppRoute>} />
+
+          {/* Per-agent nested layout */}
+          <Route
+            path="/chatbot/:id"
+            element={<ProtectedRoute><AgentLayout /></ProtectedRoute>}
+          >
+            <Route index element={<Navigate to="playground" replace />} />
+            <Route path="playground"        element={<PlaygroundTab />} />
+            <Route path="actions"           element={<ActionsTab />} />
+            <Route path="analytics"         element={<AgentAnalyticsTab />} />
+            <Route path="compare"           element={<CompareTab />} />
+            <Route path="config/general"    element={<GeneralConfig />} />
+            <Route path="config/ui-setting" element={<UISettingConfig />} />
+            <Route path="config/ai-models"  element={<AIModelsConfig />} />
+          </Route>
+
           <Route path="/" element={<HomePage />} />
           <Route path="/pricing" element={<PricingPage />} />
         </Routes>
