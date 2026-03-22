@@ -42,7 +42,7 @@ export default function AgentAnalyticsTab() {
   const now = new Date();
   const past = new Date(now);
   past.setDate(past.getDate() - 30);
-  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', d: 'numeric', year: 'numeric' });
+  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const dateRange = `${fmt(past)} - ${fmt(now)}`;
 
   return (
