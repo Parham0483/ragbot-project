@@ -30,11 +30,7 @@ export default function PlaygroundTab() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(null);
 
-  const [messages, setMessages] = useState([{
-    role: 'assistant',
-    content: "Hello! I'm your AI assistant. Ask me anything about the uploaded documents.",
-    id: 'welcome',
-  }]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
@@ -42,6 +38,12 @@ export default function PlaygroundTab() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    setMessages([{
+      role: 'assistant',
+      content: "Hello! I'm your AI assistant. Ask me anything about the uploaded documents.",
+      id: 'welcome',
+    }]);
+    setConversationId(null);
     loadChatbot();
     loadDocuments();
     // eslint-disable-next-line react-hooks/exhaustive-deps

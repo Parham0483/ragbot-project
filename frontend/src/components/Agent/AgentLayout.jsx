@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams, Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { IconButton, Collapse, Avatar } from '@mui/material';
@@ -30,6 +30,11 @@ export default function AgentLayout() {
   const onConfig = location.pathname.includes('/config');
   const [collapsed, setCollapsed] = useState(false);
   const [configOpen, setConfigOpen] = useState(onConfig);
+
+  // auto-open Config section when navigating to a config sub-path via a link
+  useEffect(() => {
+    if (onConfig) setConfigOpen(true);
+  }, [onConfig]);
 
   const isActive = (tab) =>
     location.pathname === `${base}/${tab}` ||

@@ -21,7 +21,7 @@ export default function AgentAnalyticsTab() {
           analyticsAPI.frequentQuestions(id),
         ]);
         setSummary(sumRes.data);
-        setQuestions(qRes.data.questions || qRes.data || []);
+        setQuestions(Array.isArray(qRes.data) ? qRes.data : []);
       } catch (e) {
         console.error(e);
       } finally {
@@ -75,7 +75,7 @@ export default function AgentAnalyticsTab() {
         )}
         {pageItems.map((q, i) => (
           <div key={i} className={styles.questionItem}>
-            {q.question || q}
+            {q.question}
           </div>
         ))}
       </div>
