@@ -12,11 +12,9 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       authAPI.getProfile()
         .then(res => {
-          console.log('[AuthContext] getProfile:', res.data?.email, '| first_name:', res.data?.first_name);
           setUser(res.data);
         })
-        .catch((err) => {
-          console.error('[AuthContext] getProfile failed:', err.response?.status);
+        .catch(() => {
           logout();
         })
         .finally(() => setLoading(false));

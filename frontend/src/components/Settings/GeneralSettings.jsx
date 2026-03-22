@@ -26,7 +26,6 @@ export default function GeneralSettings() {
   // fill fields once user data arrives
   useEffect(() => {
     if (user) {
-      console.log('[useEffect user] first_name:', user.first_name, '| email:', user.email);
       setFirstName(user.first_name || '');
       setLastName(user.last_name || '');
       setEmail(user.email || '');
@@ -53,8 +52,6 @@ export default function GeneralSettings() {
     setInfoMsg('');
     try {
       const res = await authAPI.updateProfile({ first_name: firstName, last_name: lastName });
-      console.log('[saveInfo] response status:', res.status);
-      console.log('[saveInfo] response data:', res.data);
       setUser(res.data);
       setInfoMsg('Saved!');
     } catch (err) {
