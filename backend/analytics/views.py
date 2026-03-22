@@ -63,13 +63,12 @@ def frequent_questions(request, chatbot_id):
     if not chatbot:
         return Response({'error': 'Not found'}, status=404)
 
-    # Top 10 by frequency, then most recent for tiebreaking
     data = (
         Message.objects
         .filter(conversation__chatbot=chatbot, role='user')
         .values('content')
         .annotate(count=Count('id'))
-        .order_by('-count', '-id')[:10]
+        .order_by('-count')[:10]
     )
 
     return Response([
