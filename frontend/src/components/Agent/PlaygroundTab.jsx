@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Avatar, LinearProgress, CircularProgress } from '@mui/material';
 import { Description, Delete, Upload, Send } from '@mui/icons-material';
 import { chatbotAPI, documentAPI } from '../../services/api';
+import { MODELS, findModel, DEFAULT_MODEL } from '../../constants/models';
 import axios from 'axios';
 import styles from './PlaygroundTab.module.css';
 
@@ -35,6 +36,7 @@ export default function PlaygroundTab() {
   const [chatLoading, setChatLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   const [feedback, setFeedback] = useState({});
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -57,6 +59,7 @@ export default function PlaygroundTab() {
     try {
       const r = await chatbotAPI.get(id);
       setChatbot(r.data);
+      setSelectedModel(findModel(r.data.ai_model));
     } catch (e) { console.error(e); }
   };
 
@@ -107,7 +110,7 @@ export default function PlaygroundTab() {
       const token = localStorage.getItem('access_token');
       const r = await axios.post(
         `${API_URL}/chat/${id}/`,
-        { message: input, conversation_id: conversationId },
+        { message: input, conversation_id: conversationId, model_id: selectedModel.id, provider: selectedModel.provider },
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
       if (!conversationId && r.data.conversation_id) setConversationId(r.data.conversation_id);
@@ -209,7 +212,15 @@ export default function PlaygroundTab() {
         {/* Model */}
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Model</div>
-          <div className={styles.modelChip}>GPT-3.5-turbo</div>
+          <select
+            className={styles.modelSelect}
+            value={selectedModel.id}
+            onChange={e => setSelectedModel(MODELS.find(m => m.id === e.target.value))}
+          >
+            {MODELS.map(m => (
+              <option key={m.id} value={m.id}>{m.label}</option>
+            ))}
+          </select>
         </div>
 
         {/* Instructions */}

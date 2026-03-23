@@ -2,13 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CircularProgress } from '@mui/material';
 import { chatbotAPI } from '../../services/api';
+import { MODELS, findModel } from '../../constants/models';
 import styles from './AIModelsConfig.module.css';
-
-const MODELS = [
-  { id: 'gpt-3.5-turbo', label: 'GPT-3.5-turbo' },
-  { id: 'gpt-4',         label: 'GPT-4'          },
-  { id: 'gpt-4o',        label: 'GPT-4o'         },
-];
 
 // static widget preview
 function WidgetPreview({ name }) {
@@ -33,7 +28,7 @@ function WidgetPreview({ name }) {
 export default function AIModelsConfig() {
   const { id } = useParams();
   const [chatbot, setChatbot] = useState(null);
-  const [model, setModel] = useState('gpt-3.5-turbo');
+  const [selectedModel, setSelectedModel] = useState(null);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -42,13 +37,18 @@ export default function AIModelsConfig() {
     chatbotAPI.get(id).then(r => {
       setChatbot(r.data);
       setSystemPrompt(r.data.system_prompt || '');
+      setSelectedModel(findModel(r.data.ai_model));
     }).catch(console.error);
   }, [id]);
 
   const confirm = async () => {
     setSaving(true);
     try {
-      await chatbotAPI.patch(id, { system_prompt: systemPrompt });
+      await chatbotAPI.patch(id, {
+        system_prompt: systemPrompt,
+        ai_model: selectedModel.id,
+        ai_provider: selectedModel.provider,
+      });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (e) {
@@ -73,8 +73,8 @@ export default function AIModelsConfig() {
         <div className={styles.field}>
           <select
             className={styles.select}
-            value={model}
-            onChange={e => setModel(e.target.value)}
+            value={selectedModel?.id ?? ''}
+            onChange={e => setSelectedModel(findModel(e.target.value))}
           >
             {MODELS.map(m => (
               <option key={m.id} value={m.id}>{m.label}</option>

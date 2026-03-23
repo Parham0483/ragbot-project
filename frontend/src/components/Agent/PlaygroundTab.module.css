@@ -188,6 +188,22 @@
   margin: 0;
 }
 
+.modelSelect {
+  width: 100%;
+  background: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #1A1A1A;
+  cursor: pointer;
+  outline: none;
+}
+
+.modelSelect:focus {
+  border-color: #999;
+}
+
 .modelChip {
   display: inline-flex;
   align-items: center;

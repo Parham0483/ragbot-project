@@ -38,6 +38,7 @@ export const chatbotAPI = {
   update: (id, data) => api.put(`/chatbots/${id}/`, data),
   patch: (id, data) => api.patch(`/chatbots/${id}/`, data),
   delete: (id) => api.delete(`/chatbots/${id}/`),
+  compare: (id, data) => api.post(`/chat/${id}/compare/`, data),
 };
 
 export const documentAPI = {
