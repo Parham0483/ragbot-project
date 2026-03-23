@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/chatbots/<int:chatbot_id>/embed-code/', widget_views.embed_code, name='embed-code'),
 
     # Chat endpoints
+    path('api/chat/<int:chatbot_id>/compare/', chat_views.compare_endpoint, name='compare'),
     path('api/chat/<int:chatbot_id>/', chat_views.chat_endpoint, name='chat'),
     path('api/chat/<int:chatbot_id>/message/<int:message_id>/feedback/', chat_views.message_feedback, name='message-feedback'),
     path('api/chat/conversation/<int:conversation_id>/', chat_views.conversation_history, name='conversation-history'),

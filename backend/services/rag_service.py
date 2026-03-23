@@ -198,11 +198,12 @@ class RAGService:
             self,
             chatbot: Chatbot,
             user_message: str,
-            conversation_history: Optional[List[Dict]] = None
+            conversation_history: Optional[List[Dict]] = None,
+            model: str = 'gpt-3.5-turbo',
+            provider: str = 'openai',
     ) -> Dict:
 
         try:
-            #  Retrieve relevant chunks
             relevant_chunks = self.retrieve_relevant_chunks(
                 chatbot_id=chatbot.id,
                 query=user_message,
@@ -211,7 +212,6 @@ class RAGService:
 
             context = self._build_context(relevant_chunks)
 
-
             prompt = self._build_prompt(
                 system_prompt=chatbot.system_prompt,
                 context=context,
@@ -219,9 +219,9 @@ class RAGService:
                 conversation_history=conversation_history
             )
 
-            #  Call OpenAI
-            response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+            client = self._client_for(provider)
+            response = client.chat.completions.create(
+                model=model,
                 messages=prompt,
                 temperature=chatbot.temperature,
                 max_tokens=chatbot.max_tokens
@@ -289,6 +289,70 @@ class RAGService:
 
         return messages
 
+
+    def prepare_prompt(self, chatbot, user_message, conversation_history=None):
+        # get RAG chunks and build the prompt for compare
+        chunks = self.retrieve_relevant_chunks(chatbot_id=chatbot.id, query=user_message, top_k=5)
+        context = self._build_context(chunks)
+        messages = self._build_prompt(chatbot.system_prompt, context, user_message, conversation_history)
+        chunks_used = [
+            {'document': c['document_name'], 'similarity': c['similarity']}
+            for c in chunks
+        ]
+        return messages, chunks_used
+
+    def _client_for(self, provider: str) -> OpenAI:
+        # pick the right API client based on provider
+        if provider == 'openai':
+            return self.client
+        if provider == 'gemini':
+            key = os.getenv('GEMINI_API_KEY') or os.getenv('GEMENI_API_KEY')  # support both spellings
+            if not key:
+                raise ValueError('GEMINI_API_KEY is not set')
+            return OpenAI(
+                base_url='https://generativelanguage.googleapis.com/v1beta/openai/',
+                api_key=key,
+            )
+        if provider == 'grok':
+            key = os.getenv('XAI_API_KEY')
+            if not key:
+                raise ValueError('XAI_API_KEY is not set')
+            return OpenAI(
+                base_url='https://api.x.ai/v1',
+                api_key=key,
+            )
+        raise ValueError(f'Unknown provider: {provider}')
+
+    def call_model(self, messages, model_id: str, provider: str, temperature=0.7, max_tokens=500) -> Dict:
+        # call the right provider and return a clean result or error
+        try:
+            client = self._client_for(provider)
+            response = client.chat.completions.create(
+                model=model_id,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+            return {
+                'success': True,
+                'response': response.choices[0].message.content,
+                'tokens_used': response.usage.total_tokens if response.usage else 0,
+            }
+        except Exception as e:
+            return {'success': False, 'error': self._clean_error(e), 'response': None, 'tokens_used': 0}
+
+    def _clean_error(self, exc) -> str:
+        # map API errors to readable messages
+        msg = str(exc)
+        if '429' in msg or 'quota' in msg.lower() or 'rate' in msg.lower() or 'exhausted' in msg.lower():
+            return 'Quota exceeded — check your billing or try again later.'
+        if '401' in msg or 'auth' in msg.lower() or 'api key' in msg.lower():
+            return 'Authentication failed — check the API key for this provider.'
+        if '404' in msg or 'not found' in msg.lower():
+            return 'Model not found — the model ID may be unavailable or deprecated.'
+        if '400' in msg or 'invalid' in msg.lower():
+            return 'Invalid request — the model may not be available on your current plan.'
+        return 'Request failed — the provider returned an error.'
 
 
 rag_service = RAGService()
