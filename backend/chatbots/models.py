@@ -37,6 +37,10 @@ class Chatbot(models.Model):
         help_text="Maximum tokens in response"
     )
     
+    # AI model selection
+    ai_model = models.CharField(max_length=100, default='gpt-3.5-turbo')
+    ai_provider = models.CharField(max_length=50, default='openai')
+
     # Status
     is_active = models.BooleanField(
         default=True,

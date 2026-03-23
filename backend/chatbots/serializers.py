@@ -14,6 +14,7 @@ class ChatbotSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'description', 'owner', 'owner_email',
             'system_prompt', 'temperature', 'max_tokens',
+            'ai_model', 'ai_provider',
             'is_active', 'document_count', 'conversation_count',
             'created_at', 'updated_at'
         ]
