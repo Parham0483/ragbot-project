@@ -65,6 +65,14 @@ export default function AgentAnalyticsTab() {
           <span className={styles.statLabel}>Useful Chats</span>
           <span className={styles.statValue}>{summary?.helpful_count ?? 0}</span>
         </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Avg Response Time</span>
+          <span className={styles.statValue}>
+            {summary?.avg_response_time_ms != null
+              ? `${(summary.avg_response_time_ms / 1000).toFixed(1)}s`
+              : '—'}
+          </span>
+        </div>
       </div>
 
       {/* Frequent questions */}
