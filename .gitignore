@@ -49,3 +49,8 @@ tests/
 package.json
 package-lock.json
 .claude/sessions/
+
+# Local-only: scripts, docs, test files
+scripts/
+README.md
+**/tests.py
