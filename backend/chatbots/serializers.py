@@ -8,7 +8,16 @@ class ChatbotSerializer(serializers.ModelSerializer):
     owner_email = serializers.EmailField(source='owner.email', read_only=True)
     document_count = serializers.IntegerField(read_only=True)
     conversation_count = serializers.IntegerField(read_only=True)
-    
+    avatar_url = serializers.SerializerMethodField()
+
+    def get_avatar_url(self, obj):
+        if not obj.avatar:
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.avatar.url)
+        return obj.avatar.url
+
     class Meta:
         model = Chatbot
         fields = [
@@ -16,7 +25,7 @@ class ChatbotSerializer(serializers.ModelSerializer):
             'system_prompt', 'temperature', 'max_tokens',
             'ai_model', 'ai_provider',
             'is_active', 'document_count', 'conversation_count',
-            'created_at', 'updated_at'
+            'avatar_url', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'owner', 'created_at', 'updated_at']
     
@@ -31,11 +40,23 @@ class ChatbotSerializer(serializers.ModelSerializer):
         return value
 
 
+# max tokens allowed per plan
+MAX_TOKENS_BY_PLAN = {'free': 500, 'pro': 1000, 'enterprise': 4000}
+
 class ChatbotCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chatbot
         fields = ['name', 'description', 'system_prompt', 'temperature', 'max_tokens']
-    
+
+    def validate_max_tokens(self, value):
+        user = self.context['request'].user
+        limit = MAX_TOKENS_BY_PLAN.get(user.plan, 500)
+        if value > limit:
+            raise serializers.ValidationError(
+                f"Your {user.plan} plan allows a maximum of {limit} tokens per response."
+            )
+        return value
+
     def create(self, validated_data):
         validated_data['owner'] = self.context['request'].user
         return super().create(validated_data)
