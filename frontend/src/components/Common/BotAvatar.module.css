@@ -1,0 +1,16 @@
+.avatar {
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+
+.initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  user-select: none;
+}

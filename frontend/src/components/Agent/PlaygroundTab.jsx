@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { Avatar, LinearProgress, CircularProgress } from '@mui/material';
+import { LinearProgress, CircularProgress } from '@mui/material';
+import BotAvatar from '../Common/BotAvatar';
 import { Description, Delete, Upload, Send } from '@mui/icons-material';
 import { chatbotAPI, documentAPI } from '../../services/api';
 import { MODELS, findModel, DEFAULT_MODEL } from '../../constants/models';
@@ -23,8 +23,6 @@ function timeAgo(dateStr) {
 export default function PlaygroundTab() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-
   const [chatbot, setChatbot] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [files, setFiles] = useState([]);
@@ -241,7 +239,7 @@ export default function PlaygroundTab() {
         <div className={styles.widgetWrap}>
 
           <div className={styles.widgetHeader}>
-            <Avatar src={user?.gravatar_url} alt={chatbot.name} sx={{ width: 34, height: 34 }} />
+            <BotAvatar name={chatbot.name} avatarUrl={chatbot.avatar_url} size={34} />
             <span className={styles.widgetName}>{chatbot.name}</span>
           </div>
 

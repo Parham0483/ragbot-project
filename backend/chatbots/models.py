@@ -41,6 +41,9 @@ class Chatbot(models.Model):
     ai_model = models.CharField(max_length=100, default='gpt-3.5-turbo')
     ai_provider = models.CharField(max_length=50, default='openai')
 
+    # profile picture — null means use initials fallback
+    avatar = models.ImageField(upload_to='chatbot_avatars/', null=True, blank=True)
+
     # Status
     is_active = models.BooleanField(
         default=True,

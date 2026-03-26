@@ -141,6 +141,10 @@
   background: #333;
 }
 
+.hiddenInput {
+  display: none;
+}
+
 .alignToggle {
   display: flex;
   gap: 4px;

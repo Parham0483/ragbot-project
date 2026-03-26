@@ -22,9 +22,12 @@ class WidgetChatThrottle(AnonRateThrottle):
 def widget_config(request, chatbot_id):
     # Fetch chatbot regardless of is_active so embed always loads config
     chatbot = get_object_or_404(Chatbot, id=chatbot_id)
+    avatar_url = None
+    if chatbot.avatar:
+        avatar_url = request.build_absolute_uri(chatbot.avatar.url)
     return Response({
         'name': chatbot.name,
-        'avatar_url': None,          # placeholder — no avatar field yet
+        'avatar_url': avatar_url,
         'welcome_message': f"Hi! I'm {chatbot.name}. How can I help you?",
         'theme_colour': '#B10000',   # default accent colour
         'active': chatbot.is_active,

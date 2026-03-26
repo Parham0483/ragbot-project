@@ -17,6 +17,39 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// auto-refresh access token on 401, then retry original request
+api.interceptors.response.use(
+  (res) => res,
+  async (err) => {
+    const original = err.config;
+    const is401 = err.response?.status === 401;
+    const alreadyRetried = original._retry;
+    const isRefreshEndpoint = original.url?.includes('token/refresh');
+
+    if (is401 && !alreadyRetried && !isRefreshEndpoint) {
+      original._retry = true;
+      const refresh = localStorage.getItem('refresh_token');
+      if (refresh) {
+        try {
+          const r = await axios.post(`${API_URL}/auth/token/refresh/`, { refresh });
+          const newAccess = r.data.access;
+          localStorage.setItem('access_token', newAccess);
+          original.headers.Authorization = `Bearer ${newAccess}`;
+          return api(original);
+        } catch {
+          // refresh also expired — force logout
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
+        }
+      } else {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(err);
+  }
+);
+
 export const authAPI = {
   login: (credentials) => api.post('/auth/login/', credentials),
   register: (data) => api.post('/auth/register/', data),
@@ -39,6 +72,9 @@ export const chatbotAPI = {
   patch: (id, data) => api.patch(`/chatbots/${id}/`, data),
   delete: (id) => api.delete(`/chatbots/${id}/`),
   compare: (id, data) => api.post(`/chat/${id}/compare/`, data),
+  uploadAvatar: (id, formData) => api.post(`/chatbots/${id}/upload-avatar/`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
 };
 
 export const documentAPI = {

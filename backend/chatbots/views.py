@@ -38,7 +38,7 @@ class ChatbotViewSet(viewsets.ModelViewSet):
         chatbot = serializer.save()
         
         return Response(
-            ChatbotSerializer(chatbot).data,
+            ChatbotSerializer(chatbot, context={'request': request}).data,
             status=status.HTTP_201_CREATED
         )
     
@@ -62,6 +62,24 @@ class ChatbotViewSet(viewsets.ModelViewSet):
         serializer = ConversationSerializer(conversations, many=True)
         return Response(serializer.data)
     
+    @action(detail=True, methods=['post'], url_path='upload-avatar')
+    def upload_avatar(self, request, pk=None):
+        chatbot = self.get_object()
+        file = request.FILES.get('avatar')
+        if not file:
+            return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+        # 1 MB limit
+        if file.size > 1024 * 1024:
+            return Response({'error': 'File too large (max 1MB)'}, status=status.HTTP_400_BAD_REQUEST)
+        if not file.content_type.startswith('image/'):
+            return Response({'error': 'Only image files allowed'}, status=status.HTTP_400_BAD_REQUEST)
+        # delete old avatar to avoid orphaned files
+        if chatbot.avatar:
+            chatbot.avatar.delete(save=False)
+        chatbot.avatar = file
+        chatbot.save(update_fields=['avatar'])
+        return Response(ChatbotSerializer(chatbot, context={'request': request}).data)
+
     @action(detail=True, methods=['get'])
     def documents(self, request, pk=None):
         """Get all documents for a chatbot"""

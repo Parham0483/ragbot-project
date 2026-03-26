@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { CircularProgress, Avatar } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 import { chatbotAPI } from '../../services/api';
+import BotAvatar from '../Common/BotAvatar';
 import styles from './UISettingConfig.module.css';
 
 // static widget preview using current settings
@@ -38,13 +39,29 @@ export default function UISettingConfig() {
   const [primaryColor, setPrimaryColor] = useState('#B10000');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const avatarInputRef = useRef(null);
 
   useEffect(() => {
     chatbotAPI.get(id).then(r => {
       setChatbot(r.data);
       setDisplayName(r.data.name);
+      setAvatarUrl(r.data.avatar_url || null);
     }).catch(console.error);
   }, [id]);
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append('avatar', file);
+    try {
+      const r = await chatbotAPI.uploadAvatar(id, form);
+      setAvatarUrl(r.data.avatar_url);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const saveChanges = async () => {
     setSaving(true);
@@ -131,8 +148,17 @@ export default function UISettingConfig() {
         <div className={styles.field}>
           <label className={styles.fieldLabel}>Profile</label>
           <div className={styles.uploadRow}>
-            <Avatar sx={{ width: 48, height: 48, bgcolor: '#E0E0E0' }} />
-            <button className={styles.uploadBtn}>Upload</button>
+            <BotAvatar name={displayName} avatarUrl={avatarUrl} size={48} />
+            <button className={styles.uploadBtn} type="button" onClick={() => avatarInputRef.current?.click()}>
+              Upload
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className={styles.hiddenInput}
+              onChange={handleAvatarChange}
+            />
           </div>
         </div>
 

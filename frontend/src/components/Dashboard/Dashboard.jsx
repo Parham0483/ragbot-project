@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { chatbotAPI } from '../../services/api';
+import BotAvatar from '../Common/BotAvatar';
 import styles from './Dashboard.module.css';
 
 function timeAgo(dateStr) {
@@ -17,6 +18,7 @@ function AgentCard({ bot, onClick }) {
   return (
     <div className={styles.agentCard} onClick={onClick}>
       <div className={styles.cardPattern}>
+        <BotAvatar name={bot.name} avatarUrl={bot.avatar_url} size={40} />
         <span className={styles.cardName}>{bot.name}</span>
       </div>
       <div className={styles.cardFooter}>
