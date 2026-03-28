@@ -67,7 +67,14 @@ export default function CreateChatbot() {
       }
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.name?.[0] || err.response?.data?.error || 'Failed to create agent.');
+      const status = err.response?.status;
+      if (status === 403) {
+        setError(err.response?.data?.error || 'You have reached your plan limit. Upgrade to create more agents.');
+      } else if (status === 429) {
+        setError('Monthly message limit reached. Upgrade your plan to continue.');
+      } else {
+        setError(err.response?.data?.name?.[0] || err.response?.data?.error || 'Failed to create agent.');
+      }
     } finally {
       setSubmitting(false);
     }

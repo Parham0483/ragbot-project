@@ -17,7 +17,18 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// auto-refresh access token on 401, then retry original request
+// one refresh at a time — shared so multiple failing requests don't each start their own
+let refreshPromise = null;
+
+function clearAuthAndRedirect() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  refreshPromise = null;
+  // replace so login page doesn't stack in browser history
+  window.location.replace('/login');
+}
+
+// if token expired, try to get a new one and redo the request
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -29,21 +40,32 @@ api.interceptors.response.use(
     if (is401 && !alreadyRetried && !isRefreshEndpoint) {
       original._retry = true;
       const refresh = localStorage.getItem('refresh_token');
-      if (refresh) {
-        try {
-          const r = await axios.post(`${API_URL}/auth/token/refresh/`, { refresh });
-          const newAccess = r.data.access;
-          localStorage.setItem('access_token', newAccess);
-          original.headers.Authorization = `Bearer ${newAccess}`;
-          return api(original);
-        } catch {
-          // refresh also expired — force logout
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          window.location.href = '/login';
-        }
-      } else {
-        window.location.href = '/login';
+      if (!refresh) {
+        clearAuthAndRedirect();
+        return Promise.reject(err);
+      }
+
+      // if another request already started a refresh, wait for that one
+      if (!refreshPromise) {
+        refreshPromise = axios
+          .post(`${API_URL}/auth/token/refresh/`, { refresh })
+          .then((r) => {
+            localStorage.setItem('access_token', r.data.access);
+            return r.data.access;
+          })
+          .catch(() => {
+            clearAuthAndRedirect();
+            return Promise.reject(new Error('Session expired'));
+          })
+          .finally(() => { refreshPromise = null; });
+      }
+
+      try {
+        const newAccess = await refreshPromise;
+        original.headers.Authorization = `Bearer ${newAccess}`;
+        return api(original);
+      } catch {
+        return Promise.reject(err);
       }
     }
     return Promise.reject(err);

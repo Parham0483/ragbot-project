@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import styles from './LandingNavbar.module.css';
 
 export default function LandingNavbar() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -27,8 +29,14 @@ export default function LandingNavbar() {
       </div>
 
       <div className={styles.actions}>
-        <Link to="/register" className={styles.signup}>Sign up</Link>
-        <Link to="/login" className={styles.loginBtn}>Login</Link>
+        {user ? (
+          <Link to="/dashboard" className={styles.loginBtn}>Dashboard</Link>
+        ) : (
+          <>
+            <Link to="/register" className={styles.signup}>Sign up</Link>
+            <Link to="/login" className={styles.loginBtn}>Login</Link>
+          </>
+        )}
       </div>
     </nav>
   );

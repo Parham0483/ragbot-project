@@ -14,8 +14,11 @@ export const AuthProvider = ({ children }) => {
         .then(res => {
           setUser(res.data);
         })
-        .catch(() => {
-          logout();
+        .catch((err) => {
+          const status = err.response?.status;
+          if (status === 401 || status === 403) {
+            logout();
+          }
         })
         .finally(() => setLoading(false));
     } else {
