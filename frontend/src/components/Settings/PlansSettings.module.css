@@ -1,0 +1,181 @@
+.page {
+  padding: 32px 40px;
+  max-width: 680px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 24px;
+}
+
+/* ── Pro plan card ── */
+.card {
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.cardActive {
+  border-color: #1A1A1A;
+}
+
+.currentBadge {
+  position: absolute;
+  top: -11px;
+  left: 24px;
+  background: #1A1A1A;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+.featureList {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: #1A1A1A;
+}
+
+.featureDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1A1A1A;
+  flex-shrink: 0;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 20px;
+}
+
+.upgradeBtn {
+  padding: 10px 32px;
+  background: #1A1A1A;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.upgradeBtn:hover {
+  background: #333;
+}
+
+.currentBtn {
+  padding: 10px 32px;
+  background: #F5F5F5;
+  color: #888;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+/* ── Remove branding add-on ── */
+.addonCard {
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 24px 32px;
+}
+
+.addonInfo {
+  margin-bottom: 16px;
+}
+
+.addonTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 4px;
+}
+
+.addonPrice {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.addonToggleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.addonHint {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* ── Toggle switch ── */
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggleInput {
+  display: none;
+}
+
+.toggleTrack {
+  width: 40px;
+  height: 22px;
+  background: #D0D0D0;
+  border-radius: 11px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggleTrackOn {
+  background: #1A1A1A;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggleTrackOn .toggleThumb {
+  transform: translateX(18px);
+}
+
+.toggleText {
+  font-size: 14px;
+  color: #444;
+}

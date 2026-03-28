@@ -1,0 +1,259 @@
+.page {
+  min-height: 100vh;
+  background: #F5F5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* ── Two-column layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  max-width: 860px;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+/* ── Left: order summary ── */
+.summary {
+  background: #1A1A1A;
+  color: #fff;
+  padding: 40px 36px;
+}
+
+.summaryTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 28px;
+  color: #fff;
+}
+
+.planRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.planName {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.planPrice {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ccc;
+}
+
+.featureList {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.check {
+  color: #6fcf97;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #333;
+  margin: 0 0 20px;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.totalPrice {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.billingNote {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+}
+
+/* ── Right: payment form ── */
+.formBox {
+  padding: 40px 36px;
+}
+
+.formTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 28px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+
+.input {
+  padding: 10px 14px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1A1A1A;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: #1A1A1A;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.errorMsg {
+  font-size: 13px;
+  color: #B10000;
+  margin: 0;
+}
+
+.payBtn {
+  padding: 12px;
+  background: #1A1A1A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.payBtn:hover:not(:disabled) {
+  background: #333;
+}
+
+.payBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  padding: 10px;
+  background: transparent;
+  color: #888;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.cancelBtn:hover {
+  border-color: #999;
+  color: #444;
+}
+
+.secureNote {
+  font-size: 12px;
+  color: #aaa;
+  text-align: center;
+  margin: 12px 0 0;
+}
+
+/* ── Success state ── */
+.successBox {
+  text-align: center;
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 16px;
+  padding: 60px 48px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.successIcon {
+  width: 56px;
+  height: 56px;
+  background: #1A1A1A;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 auto 20px;
+}
+
+.successTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 10px;
+}
+
+.successMsg {
+  font-size: 15px;
+  color: #666;
+  margin: 0 0 28px;
+}
+
+.dashBtn {
+  padding: 12px 32px;
+  background: #1A1A1A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashBtn:hover {
+  background: #333;
+}
+
+@media (max-width: 640px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

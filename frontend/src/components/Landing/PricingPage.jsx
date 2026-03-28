@@ -46,7 +46,7 @@ export default function PricingPage() {
             </ul>
             <hr className={styles.divider} />
             <span className={styles.price}>£10 / month</span>
-            <Link to="/register" className={styles.btn}>Upgrade</Link>
+            <Link to="/checkout" className={styles.btn}>Upgrade</Link>
           </div>
 
         </div>

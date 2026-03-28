@@ -43,7 +43,7 @@ export default function AppLayout({ children }) {
           <span className={styles.planLabel}>
             {user?.plan === 'pro' ? 'Pro Plan' : 'Free plan'}
           </span>
-          <button className={styles.upgradeBtn}>Upgrade</button>
+          <button className={styles.upgradeBtn} onClick={() => navigate('/settings/plans')}>Upgrade</button>
         </div>
 
         <div className={styles.navbarRight}>
