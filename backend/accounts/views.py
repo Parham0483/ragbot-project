@@ -386,6 +386,32 @@ def email_change_confirm_view(request):
     return Response({'message': 'Email updated successfully.', 'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
 
 
+PROVIDER_FIELD = {
+    'openai':    'openai_api_key',
+    'anthropic': 'anthropic_api_key',
+    'google':    'google_api_key',
+    'xai':       'xai_api_key',
+}
+
+@api_view(['GET', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def api_key_view(request):
+    provider = request.query_params.get('provider', 'openai')
+    field = PROVIDER_FIELD.get(provider)
+    if not field:
+        return Response({'error': 'Unknown provider.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = request.user
+    if request.method == 'GET':
+        # return the real key so the user can copy it
+        return Response({'key': getattr(user, field)})
+
+    # DELETE — clear the key for this provider
+    setattr(user, field, None)
+    user.save(update_fields=[field])
+    return Response({'message': 'API key removed.'}, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):

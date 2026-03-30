@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     RegisterView, LoginView, UserProfileView, UserUpdateView,
-    logout_view, usage_view,
+    logout_view, usage_view, api_key_view,
     verify_email_view,
     password_reset_request_view, password_reset_confirm_view,
     google_login_view, delete_account_view,
@@ -26,4 +26,5 @@ urlpatterns = [
     path('delete/', delete_account_view, name='delete-account'),
     path('email-change/request/', email_change_request_view, name='email-change-request'),
     path('email-change/confirm/', email_change_confirm_view, name='email-change-confirm'),
+    path('api-key/', api_key_view, name='api-key'),
 ]

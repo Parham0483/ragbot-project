@@ -7,7 +7,10 @@ class User(AbstractUser):
     organization = models.CharField(max_length=200, blank=True, help_text="Company or organization name")
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone must be: '+999999999'. Up to 15 digits.")
     phone = models.CharField(validators=[phone_regex], max_length=17, blank=True)
-    openai_api_key = models.CharField(max_length=500, blank=True, null=True, help_text="Optional: User's OpenAI API key")
+    openai_api_key    = models.CharField(max_length=500, blank=True, null=True)
+    anthropic_api_key = models.CharField(max_length=500, blank=True, null=True)
+    google_api_key    = models.CharField(max_length=500, blank=True, null=True)
+    xai_api_key       = models.CharField(max_length=500, blank=True, null=True)
     
     PLAN_CHOICES = [('free', 'Free'), ('pro', 'Pro'), ('enterprise', 'Enterprise')]
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free')
