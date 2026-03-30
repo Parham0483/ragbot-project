@@ -84,6 +84,9 @@ export const authAPI = {
   deleteAccount: () => api.delete('/auth/delete/'),
   emailChangeRequest: (new_email) => api.post('/auth/email-change/request/', { new_email }),
   emailChangeConfirm: (otp) => api.post('/auth/email-change/confirm/', { otp }),
+  getApiKey: (provider) => api.get('/auth/api-key/', { params: { provider } }),
+  saveApiKey: (provider, key) => api.patch('/auth/profile/update/', { [`${provider}_api_key`]: key }),
+  deleteApiKey: (provider) => api.delete('/auth/api-key/', { params: { provider } }),
 };
 
 export const chatbotAPI = {

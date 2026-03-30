@@ -1,0 +1,237 @@
+.page {
+  padding: 32px 40px;
+  max-width: 960px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 28px;
+}
+
+/* ── 2×2 grid ── */
+.list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ── Provider card ── */
+.card {
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.logoWrap {
+  background: #F0F0F0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 56px;
+}
+
+.providerLogo {
+  height: 28px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  display: block;
+}
+
+.providerName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1A1A1A;
+  flex: 1;
+}
+
+.docLink {
+  font-size: 12px;
+  color: #888;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.docLink:hover {
+  color: #444;
+}
+
+/* ── Key row ── */
+.keyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.keyText {
+  font-family: monospace;
+  font-size: 13px;
+  color: #1A1A1A;
+  word-break: break-all;
+}
+
+.keyActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.iconBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #555;
+  transition: background 0.15s;
+}
+
+.iconBtn:hover {
+  background: #EBEBEB;
+}
+
+.deleteBtn {
+  background: #FFF0F0;
+  border-color: #FFCCCC;
+  color: #B10000;
+}
+
+.deleteBtn:hover {
+  background: #FFE0E0;
+}
+
+.deleteBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.copiedToast {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1A1A1A;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.noKey {
+  font-size: 13px;
+  color: #aaa;
+  margin: 0 0 12px;
+}
+
+/* ── Add key row ── */
+.addRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.keyInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: monospace;
+  color: #1A1A1A;
+  outline: none;
+}
+
+.keyInput:focus {
+  border-color: #1A1A1A;
+}
+
+.saveBtn {
+  padding: 8px 16px;
+  background: #1A1A1A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  padding: 8px 14px;
+  background: transparent;
+  color: #888;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cancelBtn:hover {
+  border-color: #999;
+  color: #444;
+}
+
+.addBtn {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1A1A1A;
+  background: transparent;
+  border: 1px dashed #CCC;
+  border-radius: 8px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.addBtn:hover {
+  border-color: #1A1A1A;
+  background: #F5F5F5;
+}
+
+.errorMsg {
+  font-size: 12px;
+  color: #B10000;
+  margin: 6px 0 0;
+}

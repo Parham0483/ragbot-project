@@ -15,6 +15,7 @@ import ChatInterface from './components/Chatbots/ChatInterface';
 import Analytics from './components/Analytics/Analytics';
 import GeneralSettings from './components/Settings/GeneralSettings';
 import PlansSettings from './components/Settings/PlansSettings';
+import APIKeysSettings from './components/Settings/APIKeysSettings';
 import CheckoutPage from './components/Settings/CheckoutPage';
 import HomePage from './components/Landing/HomePage';
 import PricingPage from './components/Landing/PricingPage';
@@ -54,7 +55,8 @@ function App() {
           <Route path="/chat/:id"       element={<AppRoute><ChatInterface /></AppRoute>} />
           <Route path="/analytics"      element={<AppRoute><Analytics /></AppRoute>} />
           <Route path="/settings/general" element={<AppRoute><GeneralSettings /></AppRoute>} />
-          <Route path="/settings/plans"   element={<AppRoute><PlansSettings /></AppRoute>} />
+          <Route path="/settings/plans"    element={<AppRoute><PlansSettings /></AppRoute>} />
+          <Route path="/settings/api-keys" element={<AppRoute><APIKeysSettings /></AppRoute>} />
           <Route path="/checkout"          element={<CheckoutPage />} />
 
           {/* Per-agent nested layout */}
