@@ -36,11 +36,7 @@ def parse_args():
 
 
 def safe_top_source(context_used):
-    """
-    context_used is stored as JSON in Message.context_used.
-    It's usually a list of dicts like:
-      [{"document":"x.pdf","similarity":0.52,"content_preview":"..."}, ...]
-    """
+    # context_used is a JSON list of dicts — each has document name, similarity score, and a content preview
     if not isinstance(context_used, list) or len(context_used) == 0:
         return None, None, 0
 

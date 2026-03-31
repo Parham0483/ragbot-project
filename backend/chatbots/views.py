@@ -44,7 +44,7 @@ class ChatbotViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def toggle_active(self, request, pk=None):
-        """Toggle chatbot active status"""
+        # flip the active flag on or off
         chatbot = self.get_object()
         chatbot.is_active = not chatbot.is_active
         chatbot.save()
@@ -56,7 +56,7 @@ class ChatbotViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['get'])
     def conversations(self, request, pk=None):
-        """Get all conversations for a chatbot"""
+        # return all conversations for this chatbot
         chatbot = self.get_object()
         conversations = chatbot.conversations.all()
         serializer = ConversationSerializer(conversations, many=True)
@@ -82,7 +82,7 @@ class ChatbotViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def documents(self, request, pk=None):
-        """Get all documents for a chatbot"""
+        # return all documents uploaded to this chatbot
         from documents.serializers import DocumentSerializer
         chatbot = self.get_object()
         documents = chatbot.documents.all()
@@ -111,7 +111,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def add_message(self, request, pk=None):
-        """Add a message to conversation"""
+        # add a new message to this conversation
         conversation = self.get_object()
         
         serializer = MessageSerializer(data=request.data)

@@ -47,7 +47,7 @@ def validate_email_deliverable(email: str) -> tuple[bool, str]:
 
 
 def get_monthly_usage(user):
-    """Count user-role messages across all of this user's chatbots """
+    # count how many messages the user sent this month across all their chatbots
     now = timezone.now()
     return Message.objects.filter(
         conversation__chatbot__owner=user,

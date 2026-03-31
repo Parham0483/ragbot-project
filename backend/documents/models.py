@@ -87,7 +87,7 @@ class Document(models.Model):
         return f"{self.file_name} ({self.chatbot.name})"
     
     def save(self, *args, **kwargs):
-        """Auto-populate file metadata on save"""
+        # fill in filename, size, and type automatically when saving
         if self.file and not self.file_name:
             self.file_name = os.path.basename(self.file.name)
             
@@ -101,7 +101,7 @@ class Document(models.Model):
         super().save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
-        """Delete file from storage when document is deleted"""
+        # remove the actual file from disk when this model gets deleted
         if self.file:
             if os.path.isfile(self.file.path):
                 os.remove(self.file.path)

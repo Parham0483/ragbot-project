@@ -123,7 +123,7 @@ def chatbot_summary(request, chatbot_id):
 #  Overview endpoints (aggregate across ALL user chatbots)
 
 def _user_messages(user, days):
-    """User messages across all chatbots, optionally date-filtered."""
+    # get all user messages, filter by date if a days param is given
     qs = Message.objects.filter(
         conversation__chatbot__owner=user,
         role='user'

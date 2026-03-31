@@ -6,11 +6,7 @@ import pytest
 
 @pytest.fixture(autouse=True, scope="session")
 def _set_test_env_vars():
-    """Ensure required env vars exist before Django imports modules.
-
-    The project instantiates `rag_service = RAGService()` at import time.
-    That class requires OPENAI_API_KEY to be set, even if we mock all network calls.
-    """
+    # set env vars before Django loads — rag_service is a module-level singleton that needs OPENAI_API_KEY at import time
     os.environ.setdefault("OPENAI_API_KEY", "test-api-key")
     os.environ.setdefault("SECRET_KEY", "test-secret")
     os.environ.setdefault("DEBUG", "True")
@@ -18,7 +14,7 @@ def _set_test_env_vars():
 
 @pytest.fixture(autouse=True)
 def _use_sqlite_db(settings):
-    """Use SQLite for tests so contributors don't need local Postgres."""
+    # use SQLite in memory so we don't need a real Postgres running
     settings.DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -29,7 +25,7 @@ def _use_sqlite_db(settings):
 
 @pytest.fixture(autouse=True)
 def _temp_media_root(settings):
-    """Write uploaded test files into a temp directory."""
+    # put uploaded files in a temp folder so they get cleaned up after each test
     with tempfile.TemporaryDirectory() as tmp:
         settings.MEDIA_ROOT = tmp
         yield

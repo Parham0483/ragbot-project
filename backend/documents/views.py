@@ -23,12 +23,12 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return DocumentSerializer
 
     def get_queryset(self):
-        """Only return documents for user's chatbots"""
+        # only show documents that belong to the current user's chatbots
         user_chatbots = Chatbot.objects.filter(owner=self.request.user)
         return Document.objects.filter(chatbot__in=user_chatbots)
 
     def create(self, request, *args, **kwargs):
-        """Upload document and automatically process it with RAG"""
+        # upload a doc and kick off RAG processing straight away
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         document = serializer.save()
@@ -56,7 +56,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def reprocess(self, request, pk=None):
-        """Manually reprocess a document"""
+        # delete old chunks and reprocess the document from scratch
         document = self.get_object()
         DocumentChunk.objects.filter(document=document).delete()
         result = rag_service.process_document(document.id)
@@ -64,7 +64,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return Response(result)
 
     def destroy(self, request, *args, **kwargs):
-        """Delete document and all its chunks"""
+        # remove the document and all its vector chunks
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(
