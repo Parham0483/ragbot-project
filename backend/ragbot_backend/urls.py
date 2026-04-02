@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from chatbots import chat_views, widget_views
+from documents.urls import protected_media_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,8 +34,12 @@ urlpatterns = [
          name='conversation-delete'),
 ]
 
+# Protected document downloads (auth required) — must come before any static fallback
+urlpatterns += protected_media_urlpatterns
+
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # serve only avatars and other non-document media without auth in dev
+    urlpatterns += static('/media/chatbot_avatars/', document_root=str(settings.MEDIA_ROOT) + '/chatbot_avatars')
 
 admin.site.site_header = "RAGBot Administration"
 admin.site.site_title = "RAGBot Admin"
