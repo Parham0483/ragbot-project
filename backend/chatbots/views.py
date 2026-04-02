@@ -62,6 +62,14 @@ class ChatbotViewSet(viewsets.ModelViewSet):
         serializer = ConversationSerializer(conversations, many=True)
         return Response(serializer.data)
     
+    # magic bytes for JPEG, PNG, GIF, WEBP
+    _AVATAR_SIGNATURES = [
+        b'\xff\xd8\xff',           # JPEG
+        b'\x89PNG\r\n\x1a\n',      # PNG
+        b'GIF87a', b'GIF89a',      # GIF
+        b'RIFF',                   # WEBP (starts RIFF....WEBP)
+    ]
+
     @action(detail=True, methods=['post'], url_path='upload-avatar')
     def upload_avatar(self, request, pk=None):
         chatbot = self.get_object()
@@ -71,8 +79,13 @@ class ChatbotViewSet(viewsets.ModelViewSet):
         # 1 MB limit
         if file.size > 1024 * 1024:
             return Response({'error': 'File too large (max 1MB)'}, status=status.HTTP_400_BAD_REQUEST)
-        if not file.content_type.startswith('image/'):
-            return Response({'error': 'Only image files allowed'}, status=status.HTTP_400_BAD_REQUEST)
+        # validate by magic bytes, not client-supplied Content-Type
+        header = file.read(12)
+        file.seek(0)
+        is_webp = header[:4] == b'RIFF' and header[8:12] == b'WEBP'
+        valid = is_webp or any(header.startswith(sig) for sig in self._AVATAR_SIGNATURES[:3])
+        if not valid:
+            return Response({'error': 'Only JPEG, PNG, GIF, or WEBP images allowed'}, status=status.HTTP_400_BAD_REQUEST)
         # delete old avatar to avoid orphaned files
         if chatbot.avatar:
             chatbot.avatar.delete(save=False)
