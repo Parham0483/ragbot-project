@@ -111,12 +111,8 @@ def verify_email_view(request):
         return Response({'error': 'Invalid verification link.'}, status=status.HTTP_400_BAD_REQUEST)
 
     if user.is_email_verified:
-        # Already verified  just returns tokens so the link works as a login too
-        return Response({
-            'message': 'Email already verified.',
-            'tokens': _issue_tokens(user),
-            'user': UserSerializer(user).data,
-        })
+        # already verified — no tokens issued regardless of what token was supplied
+        return Response({'message': 'Email already verified. Please log in.'}, status=status.HTTP_200_OK)
 
     if not user.email_verification_token or user.email_verification_token != token:
         return Response({'error': 'Invalid or expired verification token.'}, status=status.HTTP_400_BAD_REQUEST)
