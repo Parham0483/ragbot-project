@@ -1,8 +1,16 @@
+import re
 from rest_framework import serializers
 from .models import Chatbot, Conversation, Message
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+# strip any HTML/script tags from text fields
+_TAG_RE = re.compile(r'<[^>]+>')
+
+def strip_tags(value):
+    return _TAG_RE.sub('', value).strip()
+
 
 class ChatbotSerializer(serializers.ModelSerializer):
     owner_email = serializers.EmailField(source='owner.email', read_only=True)
@@ -30,9 +38,16 @@ class ChatbotSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'owner', 'created_at', 'updated_at']
     
     def validate_name(self, value):
+        value = strip_tags(value)
         if len(value) < 3:
             raise serializers.ValidationError("Name must be at least 3 characters long")
         return value
+
+    def validate_description(self, value):
+        return strip_tags(value)
+
+    def validate_welcome_message(self, value):
+        return strip_tags(value) if value else value
     
     def validate_temperature(self, value):
         if not 0 <= value <= 1:
