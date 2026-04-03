@@ -9,9 +9,10 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework import generics, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -22,6 +23,18 @@ from .serializers import UserRegistrationSerializer, UserSerializer, UserUpdateS
 from .utils import get_monthly_usage, validate_email_deliverable
 
 User = get_user_model()
+
+
+# 5 login attempts per minute per IP
+class LoginRateThrottle(AnonRateThrottle):
+    rate = '5/minute'
+    scope = 'login'
+
+
+# 5 OTP guesses per minute per user
+class OtpRateThrottle(AnonRateThrottle):
+    rate = '5/minute'
+    scope = 'otp'
 
 
 class VerifiedTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -36,6 +49,7 @@ class VerifiedTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class LoginView(TokenObtainPairView):
     serializer_class = VerifiedTokenObtainPairSerializer
+    throttle_classes = [LoginRateThrottle]
 
 
 def _issue_tokens(user):
@@ -356,6 +370,7 @@ def email_change_request_view(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([OtpRateThrottle])
 def email_change_confirm_view(request):
     otp = request.data.get('otp', '').strip()
     if not otp:

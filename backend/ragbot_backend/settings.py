@@ -118,6 +118,8 @@ REST_FRAMEWORK = {
         'anon': '60/minute',
         'user': '200/minute',
         'widget_chat': '20/minute',
+        'login': '5/minute',
+        'otp': '5/minute',
     },
 }
 
