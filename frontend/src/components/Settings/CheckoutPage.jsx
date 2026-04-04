@@ -175,7 +175,7 @@ export default function CheckoutPage() {
           </form>
 
           <p className={styles.secureNote}>
-            🔒 This is a demo payment form. No real charges will be made.
+             This is a demo payment form. No real charges will be made.
           </p>
         </div>
 

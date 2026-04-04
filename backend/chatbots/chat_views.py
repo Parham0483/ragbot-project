@@ -1,9 +1,10 @@
 import time
 from concurrent.futures import ThreadPoolExecutor
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -14,6 +15,16 @@ from accounts.utils import get_monthly_usage
 MAX_MESSAGE_LENGTH = 2000
 MAX_COMPARE_MODELS = 4
 
+# 20 messages/min for anon,
+# 60/min for authenticated users on the chat endpoint
+class ChatAnonThrottle(AnonRateThrottle):
+    rate = '20/minute'
+    scope = 'widget_chat'
+
+class ChatUserThrottle(UserRateThrottle):
+    rate = '60/minute'
+    scope = 'user'
+
 ALLOWED_MODELS = {
     'openai': ['gpt-4o', 'gpt-4', 'gpt-3.5-turbo'],
     'gemini': ['gemini-1.5-pro-002', 'gemini-2.0-flash'],
@@ -22,7 +33,8 @@ ALLOWED_MODELS = {
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Allow anonymous users to chat
+@permission_classes([AllowAny])
+@throttle_classes([ChatAnonThrottle, ChatUserThrottle])
 def chat_endpoint(request, chatbot_id):
     try:
         # Get chatbot
@@ -41,8 +53,15 @@ def chat_endpoint(request, chatbot_id):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Enforce monthly quota before touching the DB
-        if request.user.is_authenticated:
+        # Enforce monthly quota on the chatbot owner (covers both authenticated and anon users)
+        owner = chatbot.owner
+        if get_monthly_usage(owner) >= owner.max_queries_per_month:
+            return Response(
+                {'error': 'This chatbot has reached its monthly message limit.'},
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
+        # Also enforce the calling user's own quota when logged in
+        if request.user.is_authenticated and request.user != owner:
             if get_monthly_usage(request.user) >= request.user.max_queries_per_month:
                 return Response(
                     {'error': 'Monthly message limit reached. Please upgrade your plan.'},
@@ -81,7 +100,7 @@ def chat_endpoint(request, chatbot_id):
                     'content': msg.content
                 })
 
-        # Model selection — request overrides chatbot default, fallback to gpt-3.5-turbo
+        # Model selection
         model_id = request.data.get('model_id') or chatbot.ai_model
         provider  = request.data.get('provider') or chatbot.ai_provider
         if provider not in ALLOWED_MODELS or model_id not in ALLOWED_MODELS.get(provider, []):
@@ -230,7 +249,7 @@ def compare_endpoint(request, chatbot_id):
         if provider not in ALLOWED_MODELS or model_id not in ALLOWED_MODELS[provider]:
             return Response({'error': f'Invalid model: {model_id}'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Build RAG prompt once — shared across all models
+    # Build RAG prompt once and share it across all models
     prompt_messages, chunks_used = rag_service.prepare_prompt(chatbot, message)
 
     def call(m):
