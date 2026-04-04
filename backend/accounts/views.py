@@ -414,8 +414,10 @@ def api_key_view(request):
 
     user = request.user
     if request.method == 'GET':
-        # return the real key so the user can copy it
-        return Response({'key': getattr(user, field)})
+        # return masked key — full key is write-only
+        from accounts.serializers import _mask_key
+        raw = getattr(user, field)
+        return Response({'has_key': bool(raw), 'masked': _mask_key(raw)})
 
     # DELETE — clear the key for this provider
     setattr(user, field, None)

@@ -49,7 +49,7 @@ function ProviderCard({ provider, keyInfo, onSaved, onDeleted }) {
     if (revealed) { setRevealed(false); return; }
     try {
       const res = await authAPI.getApiKey(provider.id);
-      setFullKey(res.data.key);
+      setFullKey(res.data.masked);
       setRevealed(true);
     } catch {
       setError('Could not load key.');
