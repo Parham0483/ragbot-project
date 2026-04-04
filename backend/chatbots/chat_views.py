@@ -37,8 +37,13 @@ ALLOWED_MODELS = {
 @throttle_classes([ChatAnonThrottle, ChatUserThrottle])
 def chat_endpoint(request, chatbot_id):
     try:
-        # Get chatbot
-        chatbot = get_object_or_404(Chatbot, id=chatbot_id, is_active=True)
+        # Lookup chatbot
+        try:
+            chatbot = Chatbot.objects.get(id=chatbot_id)
+        except Chatbot.DoesNotExist:
+            return Response({'error': 'Chatbot not found'}, status=status.HTTP_404_NOT_FOUND)
+        if not chatbot.is_active:
+            return Response({'error': 'This chatbot is not active'}, status=status.HTTP_403_FORBIDDEN)
 
         # Get user message
         user_message = request.data.get('message', '').strip()
@@ -71,11 +76,10 @@ def chat_endpoint(request, chatbot_id):
         # Get or create conversation
         conversation_id = request.data.get('conversation_id')
         if conversation_id:
-            conversation = get_object_or_404(
-                Conversation,
-                id=conversation_id,
-                chatbot=chatbot
-            )
+            # Use filter+first so a bad/foreign ID gives the same 404 as a missing one
+            conversation = Conversation.objects.filter(id=conversation_id, chatbot=chatbot).first()
+            if not conversation:
+                return Response({'error': 'Conversation not found'}, status=status.HTTP_404_NOT_FOUND)
         else:
             conversation = Conversation.objects.create(
                 chatbot=chatbot,
@@ -150,11 +154,6 @@ def chat_endpoint(request, chatbot_id):
             'context': rag_result.get('chunks_used', [])
         })
 
-    except Chatbot.DoesNotExist:
-        return Response(
-            {'error': 'Chatbot not found or inactive'},
-            status=status.HTTP_404_NOT_FOUND
-        )
     except Exception:
         return Response(
             {'error': 'Something went wrong. Please try again.'},
@@ -195,9 +194,9 @@ def conversation_history(request, conversation_id):
             ]
         })
 
-    except Exception as e:
+    except Exception:
         return Response(
-            {'error': str(e)},
+            {'error': 'Something went wrong. Please try again.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -291,8 +290,8 @@ def delete_conversation(request, conversation_id):
             status=status.HTTP_204_NO_CONTENT
         )
 
-    except Exception as e:
+    except Exception:
         return Response(
-            {'error': str(e)},
+            {'error': 'Something went wrong. Please try again.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
