@@ -5,8 +5,11 @@ from chatbots.models import Chatbot
 import os
 
 def document_upload_path(instance, filename):
-
-    return f'documents/chatbot_{instance.chatbot.id}/{filename}'
+    # strip any path components to block traversal attempts
+    safe_name = os.path.basename(filename)
+    if not safe_name:
+        raise ValueError('Invalid filename')
+    return f'documents/chatbot_{instance.chatbot.id}/{safe_name}'
 
 class Document(models.Model):
 

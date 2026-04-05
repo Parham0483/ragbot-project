@@ -80,7 +80,8 @@ class RegisterView(generics.CreateAPIView):
         # Layer 2 will be generate verification token and send email
         token = secrets.token_urlsafe(32)
         user.email_verification_token = token
-        user.save(update_fields=['email_verification_token'])
+        user.email_verification_token_expires = timezone.now() + timedelta(hours=24)
+        user.save(update_fields=['email_verification_token', 'email_verification_token_expires'])
 
         verify_link = (
             f"{settings.FRONTEND_URL}/verify-email"
@@ -92,7 +93,7 @@ class RegisterView(generics.CreateAPIView):
                 f"Hi {user.first_name or user.username},\n\n"
                 f"Please verify your email address by clicking the link below:\n\n"
                 f"{verify_link}\n\n"
-                f"This link does not expire. If you did not create an account, ignore this email.\n\n"
+                f"This link expires in 24 hours. If you did not create an account, ignore this email.\n\n"
                 f"— The RAGBot Team"
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
@@ -131,10 +132,14 @@ def verify_email_view(request):
     if not user.email_verification_token or user.email_verification_token != token:
         return Response({'error': 'Invalid or expired verification token.'}, status=status.HTTP_400_BAD_REQUEST)
 
+    if user.email_verification_token_expires and timezone.now() > user.email_verification_token_expires:
+        return Response({'error': 'Verification link has expired. Please register again.'}, status=status.HTTP_400_BAD_REQUEST)
+
     user.is_email_verified = True
     user.email_verification_token = None
+    user.email_verification_token_expires = None
     user.last_login_at = timezone.now()
-    user.save(update_fields=['is_email_verified', 'email_verification_token', 'last_login_at'])
+    user.save(update_fields=['is_email_verified', 'email_verification_token', 'email_verification_token_expires', 'last_login_at'])
 
     return Response({
         'message': 'Email verified successfully! You are now logged in.',
