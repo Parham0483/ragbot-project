@@ -290,6 +290,103 @@ class RAGService:
         return messages
 
 
+    def generate_response_agentic(
+            self,
+            chatbot,
+            user_message: str,
+            conversation_history: Optional[List[Dict]] = None,
+    ) -> Dict:
+        # claude picks when to search, we just run the search and pass results back
+        try:
+            import anthropic as _anthropic
+
+            client = _anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+
+            # build the message list from history then add the new user message
+            messages = []
+            if conversation_history:
+                for msg in conversation_history[-5:]:
+                    messages.append({"role": msg['role'], "content": msg['content']})
+            messages.append({"role": "user", "content": user_message})
+
+            chunks_used: List[Dict] = []
+            total_tokens = 0
+
+            # keep looping until claude finishes or something goes wrong
+            while True:
+                response = client.messages.create(
+                    model="claude-sonnet-4-6",
+                    max_tokens=chatbot.max_tokens,
+                    temperature=chatbot.temperature,
+                    system=chatbot.system_prompt,
+                    tools=[_SEARCH_TOOL],
+                    messages=messages,
+                )
+
+                total_tokens += response.usage.input_tokens + response.usage.output_tokens
+
+                if response.stop_reason == "end_turn":
+                    # claude finished  grab the text and return
+                    text_blocks = [b.text for b in response.content if hasattr(b, 'text')]
+                    answer = "\n".join(text_blocks).strip()
+                    return {
+                        'success': True,
+                        'response': answer,
+                        'tokens_used': total_tokens,
+                        'chunks_used': [
+                            {
+                                'document': c['document_name'],
+                                'similarity': c['similarity'],
+                                'content_preview': c['content'][:200] + '...'
+                            }
+                            for c in chunks_used
+                        ]
+                    }
+
+                if response.stop_reason == "tool_use":
+                    # claude may request multiple searches in a single turn — handle all of them
+                    tool_blocks = [
+                        b for b in response.content
+                        if hasattr(b, 'type') and b.type == "tool_use"
+                    ]
+                    if not tool_blocks:
+                        # stop_reason said tool_use but no block found — bail
+                        break
+
+                    # run every search and collect a tool_result for each one
+                    tool_results = []
+                    for tool_block in tool_blocks:
+                        query = tool_block.input.get("query", user_message)
+                        chunks = self.retrieve_relevant_chunks(chatbot.id, query, top_k=5)
+                        chunks_used.extend(chunks)
+                        context = self._build_context(chunks)
+                        tool_results.append({
+                            "type": "tool_result",
+                            "tool_use_id": tool_block.id,
+                            "content": context,
+                        })
+
+                    # every tool_use must have a matching tool_result in the next user turn
+                    messages.append({"role": "assistant", "content": response.content})
+                    messages.append({"role": "user", "content": tool_results})
+                    continue
+
+                # something unexpected stopped the loop
+                break
+
+            return {
+                'success': False,
+                'error': f"Unexpected stop reason: {response.stop_reason}",
+                'response': "I'm sorry, I encountered an error processing your request."
+            }
+
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'response': "I'm sorry, I encountered an error processing your request."
+            }
+
     def prepare_prompt(self, chatbot, user_message, conversation_history=None):
         # get RAG chunks and build the prompt for compare
         chunks = self.retrieve_relevant_chunks(chatbot_id=chatbot.id, query=user_message, top_k=5)
@@ -353,6 +450,27 @@ class RAGService:
         if '400' in msg or 'invalid' in msg.lower():
             return 'Invalid request — the model may not be available on your current plan.'
         return 'Request failed — the provider returned an error.'
+
+
+# tell claude about the search tool so it knows it can look things up
+_SEARCH_TOOL = {
+    "name": "search_documents",
+    "description": (
+        "Search the uploaded documents for information relevant to the user's question. "
+        "Call this whenever the answer may be found in the documents. "
+        "You may call it more than once with different queries if needed."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "A focused search query to find relevant document content"
+            }
+        },
+        "required": ["query"]
+    }
+}
 
 
 rag_service = RAGService()

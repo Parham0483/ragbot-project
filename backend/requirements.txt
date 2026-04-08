@@ -25,3 +25,5 @@ pgvector==0.2.5
 
 
 python-magic==0.4.27
+
+anthropic>=0.50.0

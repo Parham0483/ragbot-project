@@ -8,6 +8,7 @@ import pytest
 def _set_test_env_vars():
     # set env vars before Django loads — rag_service is a module-level singleton that needs OPENAI_API_KEY at import time
     os.environ.setdefault("OPENAI_API_KEY", "test-api-key")
+    os.environ.setdefault("ANTHROPIC_API_KEY", "test-anthropic-key")
     os.environ.setdefault("SECRET_KEY", "test-secret")
     os.environ.setdefault("DEBUG", "True")
 

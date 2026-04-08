@@ -26,9 +26,10 @@ class ChatUserThrottle(UserRateThrottle):
     scope = 'user'
 
 ALLOWED_MODELS = {
-    'openai': ['gpt-4o', 'gpt-4', 'gpt-3.5-turbo'],
-    'gemini': ['gemini-1.5-pro-002', 'gemini-2.0-flash'],
-    'grok':   ['grok-2', 'grok-beta'],
+    'openai':     ['gpt-4o', 'gpt-4', 'gpt-3.5-turbo'],
+    'gemini':     ['gemini-1.5-pro-002', 'gemini-2.0-flash'],
+    'grok':       ['grok-2', 'grok-beta'],
+    'anthropic':  ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-4-5-20251001'],
 }
 
 
@@ -111,14 +112,22 @@ def chat_endpoint(request, chatbot_id):
             model_id, provider = 'gpt-3.5-turbo', 'openai'
 
         # Generate AI response using RAG, timing the call
+        # anthropic uses the agentic loop, everyone else uses the normal path
         t0 = time.monotonic()
-        rag_result = rag_service.generate_response(
-            chatbot=chatbot,
-            user_message=user_message,
-            conversation_history=history,
-            model=model_id,
-            provider=provider,
-        )
+        if provider == 'anthropic':
+            rag_result = rag_service.generate_response_agentic(
+                chatbot=chatbot,
+                user_message=user_message,
+                conversation_history=history,
+            )
+        else:
+            rag_result = rag_service.generate_response(
+                chatbot=chatbot,
+                user_message=user_message,
+                conversation_history=history,
+                model=model_id,
+                provider=provider,
+            )
         response_time_ms = int((time.monotonic() - t0) * 1000)
 
         if not rag_result['success']:
@@ -247,6 +256,12 @@ def compare_endpoint(request, chatbot_id):
         model_id = m.get('model_id', '')
         if provider not in ALLOWED_MODELS or model_id not in ALLOWED_MODELS[provider]:
             return Response({'error': f'Invalid model: {model_id}'}, status=status.HTTP_400_BAD_REQUEST)
+        # anthropic doesn't work with compare mode, reject it early
+        if provider == 'anthropic':
+            return Response(
+                {'error': 'Anthropic models are not supported in compare mode'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     # Build RAG prompt once and share it across all models
     prompt_messages, chunks_used = rag_service.prepare_prompt(chatbot, message)
