@@ -22,6 +22,8 @@ def _use_sqlite_db(settings):
             "NAME": ":memory:",
         }
     }
+    # prevent 301 redirects in tests from SECURE_SSL_REDIRECT
+    settings.SECURE_SSL_REDIRECT = False
 
 
 @pytest.fixture(autouse=True)
