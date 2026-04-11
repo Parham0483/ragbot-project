@@ -64,7 +64,7 @@ export default function AIModelsConfig() {
 
   return (
     <div className={styles.layout}>
-      {/* ── Left ── */}
+      {/* left */}
       <div className={styles.formPanel}>
         <h2 className={styles.title}>AI Models</h2>
         <p className={styles.subtitle}>choose your AI Model</p>
@@ -106,7 +106,7 @@ export default function AIModelsConfig() {
         </button>
       </div>
 
-      {/* ── Right — preview ── */}
+      {/* right - preview */}
       <div className={styles.previewPanel}>
         <WidgetPreview name={chatbot.name} />
       </div>

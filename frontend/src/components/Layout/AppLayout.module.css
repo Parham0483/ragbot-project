@@ -31,6 +31,7 @@
   object-fit: cover;
   display: block;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .planLabel {

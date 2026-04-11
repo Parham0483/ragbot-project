@@ -88,7 +88,7 @@ export default function Register() {
 
         <div className={styles.card}>
 
-          {/* ── Left: Sign-up form ── */}
+          {/* left: sign-up form */}
           <div className={styles.left}>
             <span className={styles.watermark}>SIGNUP</span>
 
@@ -178,7 +178,7 @@ export default function Register() {
             )}
           </div>
 
-          {/* ── Right: dotted purple panel + chat ── */}
+          {/* right: dotted purple panel + chat */}
           <div className={styles.right}>
             <Link to="/login" className={styles.loginBtn}>Login</Link>
             <div className={styles.chatBox}>

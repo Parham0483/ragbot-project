@@ -36,10 +36,10 @@ export default function AppLayout({ children }) {
   return (
     <div className={styles.layout}>
 
-      {/* ── Navbar ── */}
+      {/* navbar */}
       <header className={styles.navbar}>
         <div className={styles.navbarLeft}>
-          <img src="/cs-logo.png" alt="SmartChat" className={styles.logo} />
+          <img src="/cs-logo.png" alt="SmartChat" className={styles.logo} onClick={() => navigate('/dashboard')} />
           <span className={styles.planLabel}>
             {user?.plan === 'pro' ? 'Pro Plan' : 'Free plan'}
           </span>
@@ -52,10 +52,10 @@ export default function AppLayout({ children }) {
         </div>
       </header>
 
-      {/* ── Body ── */}
+      {/* body */}
       <div className={styles.body}>
 
-        {/* Sidebar */}
+        {/* sidebar */}
         <nav className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
           <div className={styles.navList}>
             {NAV.map(({ label, Icon, path }) => (
@@ -69,7 +69,7 @@ export default function AppLayout({ children }) {
               </div>
             ))}
 
-            {/* Setting — expandable */}
+            {/* settings - expandable */}
             <div
               className={`${styles.settingRow} ${onSettingsPath ? styles.navItemActive : ''}`}
               onClick={() => setSettingOpen(v => !v)}
@@ -95,7 +95,7 @@ export default function AppLayout({ children }) {
             </Collapse>
           </div>
 
-          {/* Collapse `<` */}
+          {/* collapse button */}
           <div className={styles.collapseBtn}>
             <IconButton size="small" onClick={() => setCollapsed(true)}>
               <ChevronLeft sx={{ fontSize: 18, color: '#888' }} />
@@ -103,20 +103,20 @@ export default function AppLayout({ children }) {
           </div>
         </nav>
 
-        {/* Re-expand when collapsed */}
+        {/* expand button when sidebar is hidden */}
         {collapsed && (
           <button className={styles.expandBtn} onClick={() => setCollapsed(false)}>
             <ChevronRight sx={{ fontSize: 18, color: '#888' }} />
           </button>
         )}
 
-        {/* Main content */}
+        {/* main content */}
         <main className={styles.content}>
           {children}
         </main>
       </div>
 
-      {/* ── Footer ── */}
+      {/* footer */}
       <footer className={styles.footer}>
         <div className={`${styles.footerBrand} ${collapsed ? styles.footerBrandCollapsed : ''}`}>
           Smart Chat

@@ -70,7 +70,7 @@ export default function CheckoutPage() {
     <div className={styles.page}>
       <div className={styles.layout}>
 
-        {/* Left — order summary */}
+        {/* order summary */}
         <div className={styles.summary}>
           <h2 className={styles.summaryTitle}>Order Summary</h2>
 
@@ -100,7 +100,7 @@ export default function CheckoutPage() {
           </p>
         </div>
 
-        {/* Right — payment form */}
+        {/* payment form */}
         <div className={styles.formBox}>
           <h2 className={styles.formTitle}>Payment Details</h2>
 

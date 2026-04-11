@@ -86,7 +86,7 @@ export default function UISettingConfig() {
 
   return (
     <div className={styles.layout}>
-      {/* ── Left — form ── */}
+      {/* left - form */}
       <div className={styles.formPanel}>
         <h2 className={styles.title}>UI Setting</h2>
         <p className={styles.subtitle}>Customize widget for your website</p>
@@ -192,7 +192,7 @@ export default function UISettingConfig() {
         </button>
       </div>
 
-      {/* ── Right — preview ── */}
+      {/* right - preview */}
       <div className={styles.previewPanel}>
         <h3 className={styles.previewTitle}>Preview</h3>
         <p className={styles.subtitle}>Customize widget for your website</p>

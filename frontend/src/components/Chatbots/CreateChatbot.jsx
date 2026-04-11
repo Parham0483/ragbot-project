@@ -92,7 +92,7 @@ export default function CreateChatbot() {
         <form onSubmit={handleSubmit}>
           <div className={styles.grid}>
 
-            {/* ── Left: form ── */}
+            {/* left: form */}
             <div>
 
               {/* Basic info card */}
@@ -228,7 +228,7 @@ export default function CreateChatbot() {
 
             </div>
 
-            {/* ── Right: live preview ── */}
+            {/* right: live preview */}
             <div className={styles.previewWrap}>
               <div className={styles.previewCard}>
                 <p className={styles.previewLabel}>Preview</p>

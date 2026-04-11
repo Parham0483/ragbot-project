@@ -62,7 +62,7 @@ function Login() {
 
         <div className={styles.card}>
 
-          {/* ── Left: Login form ── */}
+          {/* left: login form */}
           <div className={styles.left}>
             <span className={styles.watermark}>LOGIN</span>
 
@@ -123,7 +123,7 @@ function Login() {
             </form>
           </div>
 
-          {/* ── Right: Chat preview + Sign up ── */}
+          {/* right: chat preview + sign up */}
           <div className={styles.right}>
             <Link to="/register" className={styles.signupBtn}>Sign up</Link>
             <WebsiteChat />

@@ -100,6 +100,7 @@ export const chatbotAPI = {
   uploadAvatar: (id, formData) => api.post(`/chatbots/${id}/upload-avatar/`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
+  embedCode: (id) => api.get(`/chatbots/${id}/embed-code/`),
 };
 
 export const documentAPI = {

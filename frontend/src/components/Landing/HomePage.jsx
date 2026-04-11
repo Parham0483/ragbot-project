@@ -133,7 +133,7 @@ export default function HomePage() {
     <div className={styles.page}>
       <LandingNavbar />
 
-      {/* ── Hero ── */}
+      {/* hero */}
       <section className={styles.hero}>
         <div className={styles.heroAurora} />
         <div className={styles.heroContent}>
@@ -171,7 +171,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Stats strip ── */}
+      {/* stats strip */}
       <section className={styles.statsStrip}>
         {STATS.map(({ value, label }) => (
           <div key={label} className={styles.statItem}>
@@ -181,7 +181,7 @@ export default function HomePage() {
         ))}
       </section>
 
-      {/* ── How It Works ── */}
+      {/* how it works */}
       <section className={styles.howSection}>
         <div className={styles.sectionInner}>
           <p className={styles.sectionEyebrow}>HOW IT WORKS</p>
@@ -201,7 +201,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Features ── */}
+      {/* features */}
       <section className={styles.featuresSection}>
         <div className={styles.sectionInner}>
           <p className={styles.sectionEyebrow}>FEATURES</p>
@@ -219,7 +219,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Dark demo section ── */}
+      {/* dark demo section */}
       <section className={styles.demoSection}>
         <div className={styles.demoInner}>
           <p className={styles.demoEyebrow}>LIVE DEMO</p>
@@ -241,7 +241,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Testimonials ── */}
+      {/* testimonials */}
       <section className={styles.testimonialsSection}>
         <div className={styles.sectionInner}>
           <p className={styles.sectionEyebrow}>TESTIMONIALS</p>
@@ -265,7 +265,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Final CTA ── */}
+      {/* final cta */}
       <section className={styles.ctaBanner}>
         <h2 className={styles.ctaBannerTitle}>Start answering questions on autopilot</h2>
         <p className={styles.ctaBannerSub}>Set up in 5 minutes. No code required. Free tier available.</p>
@@ -276,7 +276,7 @@ export default function HomePage() {
         <p className={styles.ctaBannerTrust}>Join 2,400+ teams already using SmartChat</p>
       </section>
 
-      {/* ── Footer ── */}
+      {/* footer */}
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>

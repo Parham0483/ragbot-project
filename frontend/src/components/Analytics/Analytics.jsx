@@ -149,7 +149,7 @@ function Analytics() {
   return (
     <Box>
 
-      {/* ── Header ── */}
+      {/* header */}
       <div className={css.header}>
         <h1 className={css.title}>Analytics</h1>
 
@@ -190,7 +190,7 @@ function Analytics() {
         </div>
       </div>
 
-      {/* ── Stat cards ── */}
+      {/* stat cards */}
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} sm={4}>
           <CircularStatCard value={totalMessages} max={creditsMax} label="Credits used" />
@@ -207,7 +207,7 @@ function Analytics() {
         </Grid>
       </Grid>
 
-      {/* ── Bar chart ── */}
+      {/* bar chart */}
       <div className={css.chartCard}>
         {chartLoading ? (
           <div className={css.emptyChart}><CircularProgress size={28} sx={{ color: ACCENT }} /></div>
@@ -244,7 +244,7 @@ function Analytics() {
         )}
       </div>
 
-      {/* ── Chats ── */}
+      {/* chats */}
       {questions.length > 0 && (
         <div className={css.chatsCard}>
           <div className={css.chatsTitle}>Chats</div>

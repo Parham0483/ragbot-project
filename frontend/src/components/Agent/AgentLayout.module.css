@@ -31,6 +31,7 @@
   object-fit: cover;
   display: block;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .planLabel {
@@ -95,6 +96,24 @@
   flex: 1;
   padding-top: 12px;
   overflow: hidden;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: #888;
+  font-size: 13px;
+  border-bottom: 1px solid #E0E0E0;
+  margin-bottom: 4px;
+  transition: color 0.12s;
+  white-space: nowrap;
+}
+
+.backBtn:hover {
+  color: #1A1A1A;
 }
 
 .navItem {

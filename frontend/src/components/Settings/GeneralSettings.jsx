@@ -111,7 +111,7 @@ export default function GeneralSettings() {
     <div className={styles.page}>
       <div className={styles.grid}>
 
-        {/* ── Left: forms ── */}
+        {/* left: forms */}
         <div className={styles.left}>
 
           {/* Account info card */}
@@ -257,7 +257,7 @@ export default function GeneralSettings() {
 
         </div>
 
-        {/* ── Right: preview panel ── */}
+        {/* right: preview panel */}
         <div className={styles.right}>
           <h2 className={styles.previewTitle}>Preview</h2>
           <p className={styles.previewSub}>How others see your profile</p>

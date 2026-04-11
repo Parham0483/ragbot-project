@@ -148,7 +148,7 @@ export default function PlaygroundTab() {
   return (
     <div className={styles.layout}>
 
-      {/* ── Left Panel ── */}
+      {/* left panel */}
       <div className={styles.leftPanel}>
         <h2 className={styles.title}>Playground</h2>
         <span className={styles.trainedBadge}>last trained {timeAgo(chatbot.updated_at)}</span>
@@ -234,7 +234,7 @@ export default function PlaygroundTab() {
         </div>
       </div>
 
-      {/* ── Right Panel — live dark widget ── */}
+      {/* right panel - live dark widget */}
       <div className={styles.rightPanel}>
         <div className={styles.widgetWrap}>
 

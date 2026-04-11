@@ -4,12 +4,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { IconButton, Collapse, Avatar } from '@mui/material';
 import {
   Science, Bolt, BarChart, CompareArrows, Settings,
-  ChevronLeft, ChevronRight, ExpandMore, ExpandLess,
+  ChevronLeft, ChevronRight, ExpandMore, ExpandLess, ArrowBack,
 } from '@mui/icons-material';
 import styles from './AgentLayout.module.css';
 
 const NAV_ITEMS = [
-  { label: 'Actions',   Icon: Bolt,           tab: 'actions'   },
+  { label: 'Deploy',    Icon: Bolt,           tab: 'actions'   },
   { label: 'Analytics', Icon: BarChart,        tab: 'analytics' },
   { label: 'Compare',   Icon: CompareArrows,   tab: 'compare'   },
 ];
@@ -48,10 +48,10 @@ export default function AgentLayout() {
   return (
     <div className={styles.layout}>
 
-      {/* ── Navbar ── */}
+      {/* navbar */}
       <header className={styles.navbar}>
         <div className={styles.navbarLeft}>
-          <img src="/cs-logo.png" alt="SmartChat" className={styles.logo} />
+          <img src="/cs-logo.png" alt="SmartChat" className={styles.logo} onClick={() => navigate('/dashboard')} />
           <span className={styles.planLabel}>
             {user?.plan === 'pro' ? 'Pro Plan' : 'Free plan'}
           </span>
@@ -63,14 +63,22 @@ export default function AgentLayout() {
         </div>
       </header>
 
-      {/* ── Body ── */}
+      {/* body */}
       <div className={styles.body}>
 
-        {/* Agent Sidebar */}
+        {/* sidebar */}
         <nav className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
           <div className={styles.navList}>
 
-            {/* Playground */}
+            {/* back to dashboard */}
+            <div
+              onClick={() => navigate('/dashboard')}
+              className={styles.backBtn}
+            >
+              <ArrowBack sx={{ fontSize: 16 }} />
+              <span>All Agents</span>
+            </div>
+
             <div
               onClick={() => navigate(`${base}/playground`)}
               className={`${styles.navItem} ${isPlayground() ? styles.navItemActive : ''}`}
@@ -90,7 +98,7 @@ export default function AgentLayout() {
               </div>
             ))}
 
-            {/* Config — expandable */}
+            {/* config - expandable */}
             <div
               className={`${styles.configRow} ${onConfig ? styles.navItemActive : ''}`}
               onClick={() => setConfigOpen(v => !v)}
@@ -126,13 +134,13 @@ export default function AgentLayout() {
           </button>
         )}
 
-        {/* Tab content via nested routes */}
+        {/* tab content */}
         <main className={styles.content}>
           <Outlet />
         </main>
       </div>
 
-      {/* ── Footer ── */}
+      {/* footer */}
       <footer className={styles.footer}>
         <div className={`${styles.footerBrand} ${collapsed ? styles.footerBrandCollapsed : ''}`}>
           Smart Chat
