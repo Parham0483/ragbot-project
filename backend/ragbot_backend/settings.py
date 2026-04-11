@@ -16,7 +16,7 @@ if not DEBUG and SECRET_KEY in _INSECURE_KEYS:
         "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(50))\""
     )
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.railway.app', '.render.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '.vercel.app', '.railway.app', '.render.com']
 
 BASE_URL = config('BASE_URL', default='http://localhost:3000')
 

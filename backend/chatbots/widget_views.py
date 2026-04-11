@@ -29,7 +29,7 @@ def widget_config(request, chatbot_id):
         'name': chatbot.name,
         'avatar_url': avatar_url,
         'welcome_message': f"Hi! I'm {chatbot.name}. How can I help you?",
-        'theme_colour': '#B10000',   # default accent colour
+        'theme_colour': chatbot.theme_colour,
         'active': chatbot.is_active,
     })
 

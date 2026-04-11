@@ -44,6 +44,9 @@ class Chatbot(models.Model):
     # profile picture — null means use initials fallback
     avatar = models.ImageField(upload_to='chatbot_avatars/', null=True, blank=True)
 
+    # widget accent colour, applied to header and user bubbles
+    theme_colour = models.CharField(max_length=7, default='#B10000')
+
     # Status
     is_active = models.BooleanField(
         default=True,

@@ -128,6 +128,7 @@ export const analyticsAPI = {
 };
 
 export const widgetAPI = {
+  config: (botId) => axios.get(`${API_URL}/widget/${botId}/config/`),
   chat: (botId, message, conversationId) =>
     axios.post(`${API_URL}/widget/${botId}/chat/`, {
       message,

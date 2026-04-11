@@ -47,6 +47,7 @@ export default function UISettingConfig() {
       setChatbot(r.data);
       setDisplayName(r.data.name);
       setAvatarUrl(r.data.avatar_url || null);
+      setPrimaryColor(r.data.theme_colour || '#B10000');
     }).catch(console.error);
   }, [id]);
 
@@ -66,7 +67,10 @@ export default function UISettingConfig() {
   const saveChanges = async () => {
     setSaving(true);
     try {
-      await chatbotAPI.patch(id, { name: displayName.trim() || chatbot.name });
+      await chatbotAPI.patch(id, {
+        name: displayName.trim() || chatbot.name,
+        theme_colour: primaryColor,
+      });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (e) {

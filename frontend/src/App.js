@@ -29,6 +29,7 @@ import CompareTab from './components/Agent/CompareTab';
 import GeneralConfig from './components/Agent/GeneralConfig';
 import UISettingConfig from './components/Agent/UISettingConfig';
 import AIModelsConfig from './components/Agent/AIModelsConfig';
+import WidgetPage from './components/Widget/WidgetPage';
 
 // wraps a page in both auth guard and the shared sidebar/navbar layout
 function AppRoute({ children }) {
@@ -73,6 +74,9 @@ function App() {
             <Route path="config/ui-setting" element={<UISettingConfig />} />
             <Route path="config/ai-models"  element={<AIModelsConfig />} />
           </Route>
+
+          {/* Embeddable widget — no auth, standalone page for iframe */}
+          <Route path="/widget/:id" element={<WidgetPage />} />
 
           <Route path="/" element={<HomePage />} />
           <Route path="/pricing" element={<PricingPage />} />
