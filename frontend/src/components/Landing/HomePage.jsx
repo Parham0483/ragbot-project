@@ -5,10 +5,10 @@ import WebsiteChat from '../Auth/WebsiteChat';
 import styles from './HomePage.module.css';
 
 const STATS = [
-  { value: '2,400+', label: 'Chatbots deployed' },
-  { value: '1.2M',   label: 'Messages answered' },
-  { value: '4.9★',   label: 'Average rating'    },
-  { value: '< 2s',   label: 'Avg response time' },
+  { value: 'PDF · DOCX · TXT', label: 'Supported file formats' },
+  { value: '1,536-dim',        label: 'Vector embeddings (Ada-002)' },
+  { value: 'Top-5 chunks',     label: 'Retrieved per query' },
+  { value: '< 2s',             label: 'Benchmarked response time' },
 ];
 
 const STEPS = [
@@ -90,43 +90,8 @@ const FEATURES = [
     title: 'Multi-Format Ingestion',
     desc: 'Upload PDFs, Word documents, and plain text files. Chunked, embedded, and indexed automatically with OpenAI Ada-002.',
   },
-  {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-    ),
-    title: 'Usage Limits & Safety',
-    desc: 'Per-plan message quotas, prompt injection protection, and email verification — enterprise-grade security from day one.',
-  },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote: "We were manually answering 300 support tickets a week. After deploying SmartChat, 70% are now handled automatically. The team finally focuses on real issues.",
-    name: 'Sarah K.',
-    role: 'Head of Support',
-    company: 'FinTech Co.',
-    initials: 'SK',
-    color: '#7c3aed',
-  },
-  {
-    quote: "I uploaded our entire product docs and it just... worked. Customers now get accurate answers at 3am without anyone on the team lifting a finger.",
-    name: 'Marcus T.',
-    role: 'Founder',
-    company: 'SaaS Startup',
-    initials: 'MT',
-    color: '#0891b2',
-  },
-  {
-    quote: "The analytics dashboard sold me. I can see exactly which questions are being asked, how helpful the answers are, and where the gaps in our docs are.",
-    name: 'Priya R.',
-    role: 'Product Manager',
-    company: 'E-commerce Platform',
-    initials: 'PR',
-    color: '#059669',
-  },
-];
 
 export default function HomePage() {
   return (
@@ -140,7 +105,7 @@ export default function HomePage() {
           <div className={styles.heroLeft}>
             <div className={styles.eyebrow}>
               <span className={styles.eyebrowDot} />
-              RAG-powered · Built on OpenAI · Deploy in 5 min
+              RAG-powered · Built on OpenAI · Embed with one line
             </div>
             <h1 className={styles.heroTitle}>
               Turn your docs into a<br />
@@ -206,7 +171,7 @@ export default function HomePage() {
         <div className={styles.sectionInner}>
           <p className={styles.sectionEyebrow}>FEATURES</p>
           <h2 className={styles.sectionTitle}>Everything your support team needs — automated</h2>
-          <p className={styles.sectionSub}>Built for the real world, not a demo. Every feature ships on day one.</p>
+          <p className={styles.sectionSub}>All core features available on the free tier.</p>
           <div className={styles.featuresGrid}>
             {FEATURES.map((f) => (
               <div key={f.title} className={styles.featureCard}>
@@ -232,35 +197,11 @@ export default function HomePage() {
               <span className={styles.demoDot} style={{ background: '#ff5f56' }} />
               <span className={styles.demoDot} style={{ background: '#ffbd2e' }} />
               <span className={styles.demoDot} style={{ background: '#27c93f' }} />
-              <span className={styles.demoUrl}>smartchat.ai/widget/demo</span>
+              <span className={styles.demoUrl}>localhost:3000/widget/demo</span>
             </div>
             <div className={styles.demoChatBox}>
               <WebsiteChat />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* testimonials */}
-      <section className={styles.testimonialsSection}>
-        <div className={styles.sectionInner}>
-          <p className={styles.sectionEyebrow}>TESTIMONIALS</p>
-          <h2 className={styles.sectionTitle}>Teams that stopped answering the same question twice</h2>
-          <div className={styles.testimonialsGrid}>
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className={styles.testimonialCard}>
-                <p className={styles.testimonialQuote}>"{t.quote}"</p>
-                <div className={styles.testimonialAuthor}>
-                  <div className={styles.testimonialAvatar} style={{ background: t.color }}>
-                    {t.initials}
-                  </div>
-                  <div>
-                    <p className={styles.testimonialName}>{t.name}</p>
-                    <p className={styles.testimonialMeta}>{t.role} · {t.company}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -273,7 +214,7 @@ export default function HomePage() {
           <Link to="/register" className={styles.ctaBannerPrimary}>Get Started Free</Link>
           <Link to="/pricing" className={styles.ctaBannerSecondary}>View Pricing →</Link>
         </div>
-        <p className={styles.ctaBannerTrust}>Join 2,400+ teams already using SmartChat</p>
+        <p className={styles.ctaBannerTrust}>Built for small businesses and educators</p>
       </section>
 
       {/* footer */}

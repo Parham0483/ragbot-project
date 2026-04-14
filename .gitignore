@@ -54,3 +54,9 @@ package-lock.json
 scripts/
 README.md
 **/tests.py
+
+# Generated / local artefacts
+graphify-out/
+results/
+~$*.docx
+backend/services/tests_agentic_rag.py

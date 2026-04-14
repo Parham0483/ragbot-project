@@ -36,7 +36,7 @@ export default function PricingPage() {
           <div className={`${styles.card} ${styles.cardPro}`}>
             <ul className={styles.features}>
               <li>Up to 3 AI Agents</li>
-              <li>Unlimited Messages</li>
+              <li>Increased message limit</li>
               <li>Choose from 3 AI Models</li>
               <li>
                 Advance Reports

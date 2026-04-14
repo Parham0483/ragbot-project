@@ -38,7 +38,6 @@ ALLOWED_MODELS = {
 @throttle_classes([ChatAnonThrottle, ChatUserThrottle])
 def chat_endpoint(request, chatbot_id):
     try:
-        # Lookup chatbot
         try:
             chatbot = Chatbot.objects.get(id=chatbot_id)
         except Chatbot.DoesNotExist:
@@ -46,7 +45,6 @@ def chat_endpoint(request, chatbot_id):
         if not chatbot.is_active:
             return Response({'error': 'This chatbot is not active'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Get user message
         user_message = request.data.get('message', '').strip()
         if not user_message:
             return Response(
@@ -88,7 +86,6 @@ def chat_endpoint(request, chatbot_id):
                 title=user_message[:50] + '...' if len(user_message) > 50 else user_message
             )
 
-        # Save user message
         user_msg = Message.objects.create(
             conversation=conversation,
             role='user',
@@ -105,7 +102,6 @@ def chat_endpoint(request, chatbot_id):
                     'content': msg.content
                 })
 
-        # Model selection
         model_id = request.data.get('model_id') or chatbot.ai_model
         provider  = request.data.get('provider') or chatbot.ai_provider
         if provider not in ALLOWED_MODELS or model_id not in ALLOWED_MODELS.get(provider, []):
@@ -146,7 +142,6 @@ def chat_endpoint(request, chatbot_id):
             response_time_ms=response_time_ms,
         )
 
-        # Return response
         return Response({
             'conversation_id': conversation.id,
             'user_message': {

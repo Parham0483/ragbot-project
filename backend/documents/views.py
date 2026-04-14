@@ -14,7 +14,6 @@ from .models import Document, DocumentChunk
 from .serializers import DocumentSerializer, DocumentUploadSerializer, DocumentChunkSerializer
 from chatbots.models import Chatbot
 
-# Import RAG service
 from services.rag_service import rag_service
 
 
