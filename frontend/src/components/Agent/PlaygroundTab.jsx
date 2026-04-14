@@ -8,7 +8,7 @@ import { MODELS, findModel, DEFAULT_MODEL } from '../../constants/models';
 import axios from 'axios';
 import styles from './PlaygroundTab.module.css';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = '/api';
 
 function timeAgo(dateStr) {
   if (!dateStr) return 'never';
