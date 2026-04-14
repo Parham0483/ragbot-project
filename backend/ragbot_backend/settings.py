@@ -16,7 +16,8 @@ if not DEBUG and SECRET_KEY in _INSECURE_KEYS:
         "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(50))\""
     )
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '.vercel.app', '.railway.app', '.render.com']
+_extra_hosts = [h.strip() for h in config('ALLOWED_HOSTS', default='').split(',') if h.strip()]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '.vercel.app', '.railway.app', '.render.com'] + _extra_hosts
 
 BASE_URL = config('BASE_URL', default='http://localhost:3000')
 
@@ -158,13 +159,16 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    # trust nginx's X-Forwarded-Proto so Django sees requests as HTTPS
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+_extra_cors = [o.strip() for o in config('CORS_ALLOWED_ORIGINS', default='').split(',') if o.strip()]
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:3001',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
-]
+] + _extra_cors
 CORS_ALLOW_CREDENTIALS = True
 
 #Email deliverability validation

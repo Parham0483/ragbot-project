@@ -8,6 +8,9 @@ env/
 venv/
 ENV/
 .env
+.env.prod
+backend/.env
+backend/.env.prod
 
 # Django
 *.log
