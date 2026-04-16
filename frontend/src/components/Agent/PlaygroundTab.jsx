@@ -36,8 +36,10 @@ export default function PlaygroundTab() {
   const [feedback, setFeedback] = useState({});
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const messagesEndRef = useRef(null);
+  const modelPickedByUser = useRef(false);
 
   useEffect(() => {
+    modelPickedByUser.current = false;
     setMessages([{
       role: 'assistant',
       content: "Hello! I'm your AI assistant. Ask me anything about the uploaded documents.",
@@ -57,7 +59,8 @@ export default function PlaygroundTab() {
     try {
       const r = await chatbotAPI.get(id);
       setChatbot(r.data);
-      setSelectedModel(findModel(r.data.ai_model));
+      // only set model from server on initial load, not after upload/delete
+      if (!modelPickedByUser.current) setSelectedModel(findModel(r.data.ai_model));
     } catch (e) { console.error(e); }
   };
 
@@ -213,7 +216,10 @@ export default function PlaygroundTab() {
           <select
             className={styles.modelSelect}
             value={selectedModel.id}
-            onChange={e => setSelectedModel(MODELS.find(m => m.id === e.target.value))}
+            onChange={e => {
+              modelPickedByUser.current = true;
+              setSelectedModel(MODELS.find(m => m.id === e.target.value));
+            }}
           >
             {MODELS.map(m => (
               <option key={m.id} value={m.id}>{m.label}</option>
