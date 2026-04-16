@@ -44,8 +44,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (data) => {
-    // user must verify email first.
     const response = await authAPI.register(data);
+    // dev mode: backend returns tokens immediately (no email verification needed)
+    if (response.data.tokens) {
+      localStorage.setItem('access_token', response.data.tokens.access);
+      localStorage.setItem('refresh_token', response.data.tokens.refresh);
+      setUser(response.data.user);
+    }
     return response.data;
   };
 

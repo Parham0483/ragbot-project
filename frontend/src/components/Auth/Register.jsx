@@ -35,7 +35,7 @@ export default function Register() {
     try {
       // Derive username from email prefix
       const username = formData.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_');
-      await register({
+      const result = await register({
         email: formData.email,
         username,
         first_name: '',
@@ -43,7 +43,12 @@ export default function Register() {
         password: formData.password,
         password_confirm: formData.password_confirm,
       });
-      setSuccess(true);
+      // dev mode returns tokens → go straight to dashboard
+      if (result.tokens) {
+        navigate('/dashboard');
+      } else {
+        setSuccess(true);
+      }
     } catch (err) {
       const data = err.response?.data || {};
       setError(

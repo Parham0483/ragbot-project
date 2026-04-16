@@ -77,7 +77,20 @@ class RegisterView(generics.CreateAPIView):
 
         user = serializer.save()
 
-        # Layer 2 will be generate verification token and send email
+        # in local dev skip email verification so you can log in immediately
+        if settings.DEBUG:
+            user.is_email_verified = True
+            user.save(update_fields=['is_email_verified'])
+            return Response(
+                {
+                    'message': 'Account created! You can now log in.',
+                    'tokens': _issue_tokens(user),
+                    'user': UserSerializer(user).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        # production — send verification email
         token = secrets.token_urlsafe(32)
         user.email_verification_token = token
         user.email_verification_token_expires = timezone.now() + timedelta(hours=24)
