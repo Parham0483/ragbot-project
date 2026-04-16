@@ -15,8 +15,10 @@ const DEFAULT_PANEL = (modelIdx) => ({
 });
 
 function ProviderBadge({ model }) {
+  // Grok uses dark bg so white text; others use coloured bg with white text
+  const textColor = model.provider === 'grok' ? '#fff' : '#fff';
   return (
-    <span className={styles.badge} style={{ background: model.color, color: model.provider === 'grok' ? '#111' : '#fff' }}>
+    <span className={styles.badge} style={{ background: model.color, color: textColor }}>
       {model.abbr}
     </span>
   );
@@ -87,7 +89,7 @@ function ChatPanel({ panel, onModelChange, onSyncChange, onInputChange, onSend, 
 
 export default function CompareTab() {
   const { id } = useParams();
-  const [panels, setPanels] = useState([DEFAULT_PANEL(0), DEFAULT_PANEL(4)]); // GPT-4o + Gemini 1.5 Pro
+  const [panels, setPanels] = useState([DEFAULT_PANEL(0), DEFAULT_PANEL(3)]); // GPT-4 + Claude Sonnet 3.7
   const bottomRefs = [useRef(null), useRef(null)];
 
   // scroll to bottom on new messages

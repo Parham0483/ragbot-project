@@ -26,10 +26,9 @@ class ChatUserThrottle(UserRateThrottle):
     scope = 'user'
 
 ALLOWED_MODELS = {
-    'openai':     ['gpt-4o', 'gpt-4', 'gpt-3.5-turbo'],
-    'gemini':     ['gemini-1.5-pro-002', 'gemini-2.0-flash'],
-    'grok':       ['grok-2', 'grok-beta'],
-    'anthropic':  ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-4-5-20251001'],
+    'openai':    ['gpt-4', 'gpt-3.5-turbo'],
+    'anthropic': ['claude-3-5-haiku-20241022', 'claude-3-7-sonnet-20250219'],
+    'grok':      ['grok-4-1-fast-reasoning', 'grok-4.20-0309-reasoning'],
 }
 
 
@@ -102,8 +101,8 @@ def chat_endpoint(request, chatbot_id):
                     'content': msg.content
                 })
 
-        model_id = request.data.get('model_id') or chatbot.ai_model
-        provider  = request.data.get('provider') or chatbot.ai_provider
+        model_id = request.data.get('model_id') or chatbot.ai_model or 'gpt-3.5-turbo'
+        provider  = request.data.get('provider') or chatbot.ai_provider or 'openai'
         if provider not in ALLOWED_MODELS or model_id not in ALLOWED_MODELS.get(provider, []):
             model_id, provider = 'gpt-3.5-turbo', 'openai'
 
@@ -251,12 +250,6 @@ def compare_endpoint(request, chatbot_id):
         model_id = m.get('model_id', '')
         if provider not in ALLOWED_MODELS or model_id not in ALLOWED_MODELS[provider]:
             return Response({'error': f'Invalid model: {model_id}'}, status=status.HTTP_400_BAD_REQUEST)
-        # anthropic doesn't work with compare mode, reject it early
-        if provider == 'anthropic':
-            return Response(
-                {'error': 'Anthropic models are not supported in compare mode'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
     # Build RAG prompt once and share it across all models
     prompt_messages, chunks_used = rag_service.prepare_prompt(chatbot, message)

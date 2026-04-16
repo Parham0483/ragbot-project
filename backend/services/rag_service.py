@@ -398,17 +398,9 @@ class RAGService:
         return messages, chunks_used
 
     def _client_for(self, provider: str) -> OpenAI:
-        # pick the right API client based on provider
+        # returns an OpenAI-compatible client for OpenAI and Grok
         if provider == 'openai':
             return self.client
-        if provider == 'gemini':
-            key = os.getenv('GEMINI_API_KEY') or os.getenv('GEMENI_API_KEY')
-            if not key:
-                raise ValueError('GEMINI_API_KEY is not set')
-            return OpenAI(
-                base_url='https://generativelanguage.googleapis.com/v1beta/openai/',
-                api_key=key,
-            )
         if provider == 'grok':
             key = os.getenv('XAI_API_KEY')
             if not key:
@@ -417,11 +409,13 @@ class RAGService:
                 base_url='https://api.x.ai/v1',
                 api_key=key,
             )
-        raise ValueError(f'Unknown provider: {provider}')
+        raise ValueError(f'Provider {provider} does not use the OpenAI-compatible client')
 
     def call_model(self, messages, model_id: str, provider: str, temperature=0.7, max_tokens=500) -> Dict:
-        # call the right provider and return a clean result or error
+        # Anthropic uses its own SDK; OpenAI and Grok share the openai-compatible path
         try:
+            if provider == 'anthropic':
+                return self._call_anthropic(messages, model_id, temperature, max_tokens)
             client = self._client_for(provider)
             response = client.chat.completions.create(
                 model=model_id,
@@ -436,6 +430,34 @@ class RAGService:
             }
         except Exception as e:
             return {'success': False, 'error': self._clean_error(e), 'response': None, 'tokens_used': 0}
+
+    def _call_anthropic(self, messages: List[Dict], model_id: str, temperature: float, max_tokens: int) -> Dict:
+        # Anthropic messages.create — system message extracted separately
+        import anthropic as _anthropic
+        key = os.getenv('ANTHROPIC_API_KEY')
+        if not key:
+            raise ValueError('ANTHROPIC_API_KEY is not set')
+        client = _anthropic.Anthropic(api_key=key)
+
+        # separate system prompt from the conversation turns
+        system_content = ''
+        conversation = []
+        for msg in messages:
+            if msg['role'] == 'system':
+                system_content += msg['content']
+            else:
+                conversation.append({'role': msg['role'], 'content': msg['content']})
+
+        response = client.messages.create(
+            model=model_id,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            system=system_content,
+            messages=conversation,
+        )
+        text = ''.join(b.text for b in response.content if hasattr(b, 'text'))
+        tokens = response.usage.input_tokens + response.usage.output_tokens
+        return {'success': True, 'response': text, 'tokens_used': tokens}
 
     def _clean_error(self, exc) -> str:
         # map API errors to readable messages
