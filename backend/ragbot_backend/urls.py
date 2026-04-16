@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
-from django.conf.urls.static import static
+from django.views.static import serve as static_serve
 from chatbots import chat_views, widget_views
 from documents.urls import protected_media_urlpatterns
 
@@ -37,9 +37,11 @@ urlpatterns = [
 # Protected document downloads (auth required) — must come before any static fallback
 urlpatterns += protected_media_urlpatterns
 
-if settings.DEBUG:
-    # serve only avatars and other non-document media without auth in dev
-    urlpatterns += static('/media/chatbot_avatars/', document_root=str(settings.MEDIA_ROOT) + '/chatbot_avatars')
+# Chatbot avatars are public — serve in both dev and production
+urlpatterns += [
+    re_path(r'^media/chatbot_avatars/(?P<path>.+)$', static_serve,
+            {'document_root': str(settings.MEDIA_ROOT) + '/chatbot_avatars'}),
+]
 
 admin.site.site_header = "RAGBot Administration"
 admin.site.site_title = "RAGBot Admin"
