@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { IconButton, Collapse, Avatar } from '@mui/material';
 import {
   SmartToy, BarChart, Settings,
   ChevronLeft, ChevronRight, ExpandMore, ExpandLess,
+  Person, Logout,
 } from '@mui/icons-material';
 import styles from './AppLayout.module.css';
 
@@ -14,12 +15,25 @@ const NAV = [
 ];
 
 export default function AppLayout({ children }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed]     = useState(false);
   const onSettingsPath = location.pathname.startsWith('/settings');
   const [settingOpen, setSettingOpen] = useState(onSettingsPath);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+
+  // close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const isActive = (path) => {
     if (path === '/dashboard') {
@@ -31,7 +45,19 @@ export default function AppLayout({ children }) {
     return location.pathname === path;
   };
 
+  const handleLogout = () => {
+    setProfileOpen(false);
+    logout();
+    navigate('/login');
+  };
+
+  const handleEditProfile = () => {
+    setProfileOpen(false);
+    navigate('/settings/general');
+  };
+
   const displayName = user?.first_name || user?.email?.split('@')[0] || 'User';
+  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || displayName;
 
   return (
     <div className={styles.layout}>
@@ -46,9 +72,39 @@ export default function AppLayout({ children }) {
           <button className={styles.upgradeBtn} onClick={() => navigate('/settings/plans')}>Upgrade</button>
         </div>
 
-        <div className={styles.navbarRight}>
-          <span className={styles.userName}>{displayName}</span>
-          <Avatar src={user?.gravatar_url} alt={displayName} sx={{ width: 32, height: 32 }} />
+        {/* profile trigger + dropdown */}
+        <div className={styles.profileWrap} ref={profileRef}>
+          <button className={styles.profileTrigger} onClick={() => setProfileOpen(v => !v)}>
+            <span className={styles.userName}>{displayName}</span>
+            <Avatar src={user?.gravatar_url} alt={displayName} sx={{ width: 32, height: 32 }} />
+          </button>
+
+          {profileOpen && (
+            <div className={styles.profileDropdown}>
+              {/* header */}
+              <div className={styles.dropdownHeader}>
+                <Avatar src={user?.gravatar_url} alt={displayName} sx={{ width: 40, height: 40 }} />
+                <div className={styles.dropdownUserInfo}>
+                  <span className={styles.dropdownName}>{fullName}</span>
+                  <span className={styles.dropdownEmail}>{user?.email}</span>
+                </div>
+              </div>
+
+              <div className={styles.dropdownDivider} />
+
+              <button className={styles.dropdownItem} onClick={handleEditProfile}>
+                <Person sx={{ fontSize: 17 }} />
+                Edit Profile
+              </button>
+
+              <div className={styles.dropdownDivider} />
+
+              <button className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`} onClick={handleLogout}>
+                <Logout sx={{ fontSize: 17 }} />
+                Log out
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
