@@ -15,12 +15,10 @@ const DEFAULT_PANEL = (modelIdx) => ({
 });
 
 function ProviderBadge({ model }) {
-  // Grok uses dark bg so white text; others use coloured bg with white text
-  const textColor = model.provider === 'grok' ? '#fff' : '#fff';
   return (
-    <span className={styles.badge} style={{ background: model.color, color: textColor }}>
-      {model.abbr}
-    </span>
+    <div className={styles.providerBadge} style={{ background: model.color }}>
+      <img src={model.logo} alt={model.provider} className={styles.providerLogo} />
+    </div>
   );
 }
 
@@ -89,10 +87,10 @@ function ChatPanel({ panel, onModelChange, onSyncChange, onInputChange, onSend, 
 
 export default function CompareTab() {
   const { id } = useParams();
-  const [panels, setPanels] = useState([DEFAULT_PANEL(0), DEFAULT_PANEL(3)]); // GPT-4 + Claude Sonnet 3.7
+  // default: GPT-4 (idx 0) vs Claude Sonnet 4.6 (idx 3)
+  const [panels, setPanels] = useState([DEFAULT_PANEL(0), DEFAULT_PANEL(3)]);
   const bottomRefs = [useRef(null), useRef(null)];
 
-  // scroll to bottom on new messages
   useEffect(() => {
     bottomRefs.forEach(r => r.current?.scrollIntoView({ behavior: 'smooth' }));
   }, [panels]);
@@ -105,12 +103,10 @@ export default function CompareTab() {
     const text = sender.input.trim();
     if (!text) return;
 
-    // figure out which panels to send to
     const targetIdxs = sender.synced
       ? panels.map((p, i) => ({ p, i })).filter(({ p }) => p.synced).map(({ i }) => i)
       : [senderIdx];
 
-    // update all target panels to loading state
     setPanels(prev => prev.map((p, i) =>
       targetIdxs.includes(i)
         ? { ...p, input: '', loading: true, messages: [...p.messages, { role: 'user', content: text }] }

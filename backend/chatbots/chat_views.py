@@ -27,7 +27,7 @@ class ChatUserThrottle(UserRateThrottle):
 
 ALLOWED_MODELS = {
     'openai':    ['gpt-4', 'gpt-3.5-turbo'],
-    'anthropic': ['claude-3-5-haiku-20241022', 'claude-3-7-sonnet-20250219'],
+    'anthropic': ['claude-haiku-4-5-20251001', 'claude-sonnet-4-6'],
     'grok':      ['grok-4-1-fast-reasoning', 'grok-4.20-0309-reasoning'],
 }
 
@@ -253,6 +253,17 @@ def compare_endpoint(request, chatbot_id):
 
     # Build RAG prompt once and share it across all models
     prompt_messages, chunks_used = rag_service.prepare_prompt(chatbot, message)
+
+    # all compare responses must be plain text — no markdown, bullets, or headers
+    plain_text_note = (
+        "\n\nIMPORTANT: Respond in plain text only. "
+        "Do not use markdown, bold, headers, or bullet points."
+    )
+    prompt_messages = [
+        {**msg, 'content': msg['content'] + plain_text_note}
+        if msg['role'] == 'system' else msg
+        for msg in prompt_messages
+    ]
 
     def call(m):
         t0 = time.monotonic()
