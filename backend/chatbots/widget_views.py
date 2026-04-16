@@ -89,11 +89,15 @@ def widget_chat(request, chatbot_id):
         if msg.id != user_msg.id:
             history.append({'role': msg.role, 'content': msg.content})
 
-    # Call RAG
+    # Call RAG using the chatbot's saved model
+    model_id = chatbot.ai_model or 'gpt-3.5-turbo'
+    provider  = chatbot.ai_provider or 'openai'
     rag_result = rag_service.generate_response(
         chatbot=chatbot,
         user_message=user_message,
-        conversation_history=history
+        conversation_history=history,
+        model=model_id,
+        provider=provider,
     )
 
     if not rag_result['success']:

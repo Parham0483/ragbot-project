@@ -35,6 +35,9 @@ export default function PlaygroundTab() {
   const [conversationId, setConversationId] = useState(null);
   const [feedback, setFeedback] = useState({});
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
+  const [savedModel, setSavedModel] = useState(DEFAULT_MODEL);
+  const [modelSaving, setModelSaving] = useState(false);
+  const [modelSaved, setModelSaved] = useState(false);
   const messagesEndRef = useRef(null);
   const modelPickedByUser = useRef(false);
 
@@ -60,7 +63,9 @@ export default function PlaygroundTab() {
       const r = await chatbotAPI.get(id);
       setChatbot(r.data);
       // only set model from server on initial load, not after upload/delete
-      if (!modelPickedByUser.current) setSelectedModel(findModel(r.data.ai_model));
+      const m = findModel(r.data.ai_model);
+      setSavedModel(m);
+      if (!modelPickedByUser.current) setSelectedModel(m);
     } catch (e) { console.error(e); }
   };
 
@@ -144,6 +149,17 @@ export default function PlaygroundTab() {
     } catch (e) { console.error(e); }
   };
 
+  const saveModel = async () => {
+    setModelSaving(true);
+    try {
+      await chatbotAPI.patch(id, { ai_model: selectedModel.id, ai_provider: selectedModel.provider });
+      setSavedModel(selectedModel);
+      setModelSaved(true);
+      setTimeout(() => setModelSaved(false), 2000);
+    } catch (e) { console.error(e); }
+    finally { setModelSaving(false); }
+  };
+
   if (!chatbot) return (
     <div className={styles.loading}><CircularProgress size={32} /></div>
   );
@@ -218,6 +234,7 @@ export default function PlaygroundTab() {
             value={selectedModel.id}
             onChange={e => {
               modelPickedByUser.current = true;
+              setModelSaved(false);
               setSelectedModel(MODELS.find(m => m.id === e.target.value));
             }}
           >
@@ -225,6 +242,18 @@ export default function PlaygroundTab() {
               <option key={m.id} value={m.id}>{m.label}</option>
             ))}
           </select>
+          {selectedModel.id !== savedModel.id && (
+            <p className={styles.unsavedHint}>
+              Chatbot uses <strong>{savedModel.label}</strong> — save to apply this change everywhere
+            </p>
+          )}
+          <button
+            className={styles.saveModelBtn}
+            onClick={saveModel}
+            disabled={modelSaving || selectedModel.id === savedModel.id}
+          >
+            {modelSaving ? 'Saving…' : modelSaved ? 'Saved ✓' : 'Save as chatbot default'}
+          </button>
         </div>
 
         {/* Instructions */}
