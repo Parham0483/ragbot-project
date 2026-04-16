@@ -35,9 +35,9 @@ api.interceptors.response.use(
     const original = err.config;
     const is401 = err.response?.status === 401;
     const alreadyRetried = original._retry;
-    const isRefreshEndpoint = original.url?.includes('token/refresh');
+    const isAuthEndpoint = original.url?.includes('token/refresh') || original.url?.includes('auth/login') || original.url?.includes('auth/google');
 
-    if (is401 && !alreadyRetried && !isRefreshEndpoint) {
+    if (is401 && !alreadyRetried && !isAuthEndpoint) {
       original._retry = true;
       const refresh = localStorage.getItem('refresh_token');
       if (!refresh) {
