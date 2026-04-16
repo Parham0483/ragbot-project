@@ -402,7 +402,7 @@ class RAGService:
         if provider == 'openai':
             return self.client
         if provider == 'gemini':
-            key = os.getenv('GEMINI_API_KEY') or os.getenv('GEMENI_API_KEY')  # support both spellings
+            key = os.getenv('GEMINI_API_KEY') or os.getenv('GEMENI_API_KEY')
             if not key:
                 raise ValueError('GEMINI_API_KEY is not set')
             return OpenAI(

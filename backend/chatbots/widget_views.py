@@ -57,7 +57,7 @@ def widget_chat(request, chatbot_id):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Enforce owner's monthly quota — widget bypasses chat_endpoint so check here
+    # Enforce owner's monthly quota; widget bypasses chat_endpoint so check here
     owner = chatbot.owner
     if get_monthly_usage(owner) >= owner.max_queries_per_month:
         return Response(
