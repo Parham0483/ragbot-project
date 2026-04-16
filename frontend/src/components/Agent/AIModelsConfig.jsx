@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress } from '@mui/material';
 import { chatbotAPI } from '../../services/api';
 import { MODELS, findModel } from '../../constants/models';
@@ -27,6 +27,7 @@ function WidgetPreview({ name }) {
 
 export default function AIModelsConfig() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [chatbot, setChatbot] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
   const [systemPrompt, setSystemPrompt] = useState('');
@@ -50,10 +51,9 @@ export default function AIModelsConfig() {
         ai_provider: selectedModel.provider,
       });
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setTimeout(() => navigate(`/chatbot/${id}/playground`), 1200);
     } catch (e) {
       console.error(e);
-    } finally {
       setSaving(false);
     }
   };
@@ -67,42 +67,42 @@ export default function AIModelsConfig() {
       {/* left */}
       <div className={styles.formPanel}>
         <h2 className={styles.title}>AI Models</h2>
-        <p className={styles.subtitle}>choose your AI Model</p>
+        <p className={styles.subtitle}>Choose your AI model then test it in the Playground</p>
 
-        {/* Model selector */}
-        <div className={styles.field}>
-          <select
-            className={styles.select}
-            value={selectedModel?.id ?? ''}
-            onChange={e => setSelectedModel(findModel(e.target.value))}
-          >
-            {MODELS.map(m => (
-              <option key={m.id} value={m.id}>{m.label}</option>
-            ))}
-          </select>
+        {/* Model cards */}
+        <div className={styles.modelGrid}>
+          {MODELS.map(m => (
+            <div
+              key={m.id}
+              className={`${styles.modelCard} ${selectedModel?.id === m.id ? styles.modelCardActive : ''}`}
+              onClick={() => setSelectedModel(m)}
+            >
+              <div className={styles.modelCardBadge} style={{ background: m.color }}>
+                <img src={m.logo} alt={m.provider} className={styles.modelCardLogo} />
+              </div>
+              <span className={styles.modelCardLabel}>{m.label}</span>
+            </div>
+          ))}
         </div>
 
-        {/* Instructions */}
+        {/* System prompt */}
         <div className={styles.field}>
-          <label className={styles.fieldLabel}>Instructions</label>
-          <select className={styles.select} defaultValue="general">
-            <option value="general">General AI</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
-
-        <div className={styles.field}>
+          <label className={styles.fieldLabel}>System Instructions</label>
           <textarea
             className={styles.textarea}
             value={systemPrompt}
             onChange={e => setSystemPrompt(e.target.value)}
             rows={7}
           />
-          <p className={styles.hint}>You can edit this instruction or add more details to it</p>
+          <p className={styles.hint}>Describe how your agent should behave</p>
         </div>
 
-        <button className={styles.confirmBtn} onClick={confirm} disabled={saving}>
-          {saving ? <CircularProgress size={16} sx={{ color: '#fff' }} /> : saved ? 'Saved ✓' : 'Confirm'}
+        <button className={styles.confirmBtn} onClick={confirm} disabled={saving || saved}>
+          {saving
+            ? <CircularProgress size={16} sx={{ color: '#fff' }} />
+            : saved
+              ? 'Saved — opening Playground…'
+              : 'Confirm & Test in Playground'}
         </button>
       </div>
 

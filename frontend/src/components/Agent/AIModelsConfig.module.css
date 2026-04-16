@@ -32,6 +32,60 @@
   margin: 0 0 24px 0;
 }
 
+/* Model cards */
+.modelGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.modelCard {
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.modelCard:hover {
+  border-color: #1A1A1A;
+}
+
+.modelCardActive {
+  border-color: #1A1A1A;
+  box-shadow: 0 0 0 2px #1A1A1A;
+}
+
+.modelCardBadge {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.modelCardLogo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+  filter: brightness(0) invert(1);
+}
+
+.modelCardLabel {
+  font-size: 11px;
+  color: #1A1A1A;
+  text-align: center;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
 .field {
   margin-bottom: 16px;
 }
@@ -90,7 +144,8 @@
 }
 
 .confirmBtn {
-  padding: 10px 28px;
+  width: 100%;
+  padding: 12px 28px;
   background: #1A1A1A;
   color: #fff;
   border: none;
@@ -100,7 +155,6 @@
   cursor: pointer;
   transition: background 0.15s;
   margin-top: 8px;
-  min-width: 120px;
   display: flex;
   align-items: center;
   justify-content: center;

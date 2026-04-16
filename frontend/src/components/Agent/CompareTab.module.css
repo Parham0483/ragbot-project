@@ -65,18 +65,15 @@
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
-  padding: 5px;
+  overflow: hidden;
 }
 
 .providerLogo {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  /* invert dark logos to white so they show on coloured backgrounds */
+  object-fit: cover;
+  object-position: left center;
   filter: brightness(0) invert(1);
 }
 
