@@ -172,7 +172,7 @@ function ChatInterface() {
                   elevation={1}
                   sx={{
                     p: 2,
-                    bgcolor: msg.role === 'user' ? 'primary.main' : 'white',
+                    bgcolor: msg.role === 'user' ? (chatbot?.theme_colour || '#B10000') : 'white',
                     color: msg.role === 'user' ? 'white' : 'text.primary',
                     ...(msg.isError && { bgcolor: 'error.light' })
                   }}

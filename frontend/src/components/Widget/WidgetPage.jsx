@@ -114,7 +114,7 @@ export default function WidgetPage() {
         <input
           ref={inputRef}
           style={s.input}
-          placeholder="Type a message…"
+          placeholder={config.placeholder || 'Type a message…'}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKey}

@@ -284,7 +284,9 @@ class RAGService:
 
         system_message = (
             f"{system_prompt}\n\n"
-            f"{context}\n"
+            f"{context}\n\n"
+            "Reply concisely and in plain text. "
+            "Do not use markdown, asterisks, bullet points, or emojis unless the user specifically asks for them."
         )
         messages.append({"role": "system", "content": system_message})
 
