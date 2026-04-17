@@ -73,6 +73,14 @@
   margin: 0 0 14px 0;
 }
 
+.chartCard {
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 28px;
+}
+
 .questionList {
   display: flex;
   flex-direction: column;

@@ -126,6 +126,8 @@ export const analyticsAPI = {
     api.get('/analytics/overview/frequent-questions/', { params: days ? { days } : {} }),
   overviewSummary: (days) =>
     api.get('/analytics/overview/summary/', { params: days ? { days } : {} }),
+  overviewPerBot: (days) =>
+    api.get('/analytics/overview/per-bot/', { params: days ? { days } : {} }),
 };
 
 export const widgetAPI = {

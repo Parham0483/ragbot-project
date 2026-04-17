@@ -3,11 +3,16 @@ import { useParams } from 'react-router-dom';
 import { CircularProgress } from '@mui/material';
 import { CalendarMonth } from '@mui/icons-material';
 import { analyticsAPI } from '../../services/api';
+import {
+  BarChart, Bar, XAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Cell,
+} from 'recharts';
 import styles from './AgentAnalyticsTab.module.css';
 
 export default function AgentAnalyticsTab() {
   const { id } = useParams();
   const [summary, setSummary] = useState(null);
+  const [chartData, setChartData] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -16,11 +21,13 @@ export default function AgentAnalyticsTab() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [sumRes, qRes] = await Promise.all([
+        const [sumRes, chartRes, qRes] = await Promise.all([
           analyticsAPI.summary(id),
+          analyticsAPI.messagesPerDay(id),
           analyticsAPI.frequentQuestions(id),
         ]);
         setSummary(sumRes.data);
+        setChartData(Array.isArray(chartRes.data) ? chartRes.data : []);
         setQuestions(Array.isArray(qRes.data) ? qRes.data : []);
       } catch (e) {
         console.error(e);
@@ -72,6 +79,59 @@ export default function AgentAnalyticsTab() {
               ? `${(summary.avg_response_time_ms / 1000).toFixed(1)}s`
               : '—'}
           </span>
+        </div>
+      </div>
+
+      {/* Messages per day chart */}
+      <h3 className={styles.sectionTitle}>Messages per Day</h3>
+      <div className={styles.chartCard}>
+        {chartData.length === 0 ? (
+          <p className={styles.empty}>No data yet</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={chartData} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 10, fill: '#666' }}
+                tickFormatter={d => { const dt = new Date(d); return `${dt.toLocaleString('default', { month: 'short' })} ${dt.getDate()}`; }}
+                interval="preserveStartEnd"
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                formatter={val => [val, 'Messages']}
+                labelFormatter={d => new Date(d).toLocaleDateString()}
+                cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+              />
+              <Bar dataKey="count" radius={[2, 2, 0, 0]} maxBarSize={28}>
+                {(() => {
+                  const max = Math.max(...chartData.map(d => d.count));
+                  return chartData.map((entry, i) => (
+                    <Cell key={i} fill={entry.count === max && max > 0 ? '#B10000' : '#1A1A1A'} />
+                  ));
+                })()}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* Extra stats row */}
+      <div className={styles.statRow} style={{ marginBottom: 24 }}>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Helpfulness Rate</span>
+          <span className={styles.statValue}>
+            {summary?.helpfulness_rate != null ? `${summary.helpfulness_rate}%` : '—'}
+          </span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Not Helpful</span>
+          <span className={styles.statValue}>{summary?.not_helpful_count ?? 0}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Total Conversations</span>
+          <span className={styles.statValue}>{summary?.total_conversations ?? 0}</span>
         </div>
       </div>
 

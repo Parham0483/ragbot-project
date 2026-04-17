@@ -178,3 +178,31 @@ def overview_summary(request):
         'avg_response_time_ms': round(avg_rt) if avg_rt is not None else None,
         'chatbot_name': 'All Agents',
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def overview_per_bot(request):
+    # returns messages per day broken down by each chatbot — used for stacked chart
+    days = request.query_params.get('days')
+    bots = Chatbot.objects.filter(owner=request.user)
+    result = []
+    for bot in bots:
+        qs = date_filter(
+            Message.objects.filter(conversation__chatbot=bot, role='user'),
+            days
+        )
+        data = (
+            qs.annotate(date=TruncDate('created_at'))
+            .values('date')
+            .annotate(count=Count('id'))
+            .order_by('date')
+        )
+        for row in data:
+            result.append({
+                'date': str(row['date']),
+                'chatbot_id': bot.id,
+                'chatbot_name': bot.name,
+                'count': row['count'],
+            })
+    return Response(result)

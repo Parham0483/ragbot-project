@@ -273,7 +273,7 @@ export default function PlaygroundTab() {
       <div className={styles.rightPanel}>
         <div className={styles.widgetWrap}>
 
-          <div className={styles.widgetHeader}>
+          <div className={styles.widgetHeader} style={{ background: chatbot.theme_colour || '#B10000' }}>
             <BotAvatar name={chatbot.name} avatarUrl={chatbot.avatar_url} size={34} />
             <span className={styles.widgetName}>{chatbot.name}</span>
           </div>
@@ -304,7 +304,7 @@ export default function PlaygroundTab() {
                   </div>
                 )}
                 {msg.role === 'user' && (
-                  <div className={`${styles.bubble} ${styles.bubbleUser}`}>{msg.content}</div>
+                  <div className={`${styles.bubble} ${styles.bubbleUser}`} style={{ background: chatbot.theme_colour || '#B10000' }}>{msg.content}</div>
                 )}
               </div>
             ))}
@@ -326,7 +326,7 @@ export default function PlaygroundTab() {
           <div className={styles.widgetInput}>
             <textarea
               className={styles.inputField}
-              placeholder="Message..."
+              placeholder={chatbot.placeholder || 'Message...'}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

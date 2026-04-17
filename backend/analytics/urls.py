@@ -12,4 +12,5 @@ urlpatterns = [
     path('overview/messages-per-day/', views.overview_messages_per_day, name='overview-messages-per-day'),
     path('overview/frequent-questions/', views.overview_frequent_questions, name='overview-frequent-questions'),
     path('overview/summary/', views.overview_summary, name='overview-summary'),
+    path('overview/per-bot/', views.overview_per_bot, name='overview-per-bot'),
 ]

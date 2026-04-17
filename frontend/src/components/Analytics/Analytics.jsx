@@ -9,7 +9,7 @@ import { CalendarToday, Speed } from '@mui/icons-material';
 import css from './Analytics.module.css';
 import {
   BarChart, Bar, XAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, LabelList, Cell,
+  ResponsiveContainer, LabelList, Cell, Legend,
 } from 'recharts';
 
 const ACCENT = '#B10000';
@@ -97,6 +97,7 @@ function Analytics() {
 
   const [summary, setSummary]           = useState(null);
   const [chartData, setChartData]       = useState([]);
+  const [perBotData, setPerBotData]     = useState([]);   // flat rows from overview/per-bot
   const [questions, setQuestions]       = useState([]);
   const [overallStats, setOverallStats] = useState({ total: 0, active: 0 });
   const [loading, setLoading]           = useState(true);
@@ -115,14 +116,18 @@ function Analytics() {
     setChartLoading(true);
     try {
       const isAll = chatbotId === 'all';
-      const [sumRes, chartRes, qRes] = await Promise.all([
-        isAll ? analyticsAPI.overviewSummary(days)            : analyticsAPI.summary(chatbotId, days),
-        isAll ? analyticsAPI.overviewMessagesPerDay(days)     : analyticsAPI.messagesPerDay(chatbotId, days),
-        isAll ? analyticsAPI.overviewFrequentQuestions(days)  : analyticsAPI.frequentQuestions(chatbotId, days),
-      ]);
-      setSummary(sumRes.data);
-      setChartData(chartRes.data);
-      setQuestions(qRes.data);
+      const requests = [
+        isAll ? analyticsAPI.overviewSummary(days)           : analyticsAPI.summary(chatbotId, days),
+        isAll ? analyticsAPI.overviewMessagesPerDay(days)    : analyticsAPI.messagesPerDay(chatbotId, days),
+        isAll ? analyticsAPI.overviewFrequentQuestions(days) : analyticsAPI.frequentQuestions(chatbotId, days),
+      ];
+      if (isAll) requests.push(analyticsAPI.overviewPerBot(days));
+      const results = await Promise.all(requests);
+      setSummary(results[0].data);
+      setChartData(results[1].data);
+      setQuestions(results[2].data);
+      if (isAll) setPerBotData(results[3].data);
+      else setPerBotData([]);
     } catch (err) {
       console.error('analytics load failed', err);
     } finally {
@@ -143,6 +148,19 @@ function Analytics() {
   const dateLabel    = dateRange ? `Last ${dateRange} days` : `${fmt(startOfMonth)} - ${fmt(now)}`;
 
   const maxCount = chartData.length ? Math.max(...chartData.map(d => d.count)) : 0;
+
+  // build stacked chart data when showing all bots
+  const botNames = [...new Set(perBotData.map(r => r.chatbot_name))];
+  const BOT_COLORS = ['#1A1A1A', '#B10000', '#4F7A28', '#2563EB', '#7C3AED', '#D97706'];
+  const stackedData = (() => {
+    if (!perBotData.length) return [];
+    const byDate = {};
+    perBotData.forEach(r => {
+      if (!byDate[r.date]) byDate[r.date] = { date: r.date };
+      byDate[r.date][r.chatbot_name] = r.count;
+    });
+    return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+  })();
 
   if (loading) return <LinearProgress sx={{ mt: 4 }} />;
 
@@ -211,19 +229,39 @@ function Analytics() {
       <div className={css.chartCard}>
         {chartLoading ? (
           <div className={css.emptyChart}><CircularProgress size={28} sx={{ color: ACCENT }} /></div>
-        ) : chartData.length === 0 ? (
+        ) : selectedChatbot === 'all' && stackedData.length === 0 ? (
           <div className={css.emptyChart}>No data for this period</div>
+        ) : selectedChatbot !== 'all' && chartData.length === 0 ? (
+          <div className={css.emptyChart}>No data for this period</div>
+        ) : selectedChatbot === 'all' ? (
+          // stacked bar chart — one colour per bot
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={stackedData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D0D0D0" />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 10, fill: '#666' }}
+                tickFormatter={d => { const dt = new Date(d); return `${dt.toLocaleString('default', { month: 'short' })} ${dt.getDate()}`; }}
+                interval="preserveStartEnd"
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip labelFormatter={d => new Date(d).toLocaleDateString()} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              {botNames.map((name, i) => (
+                <Bar key={name} dataKey={name} stackId="a" fill={BOT_COLORS[i % BOT_COLORS.length]} maxBarSize={32} radius={i === botNames.length - 1 ? [2, 2, 0, 0] : [0, 0, 0, 0]} />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
         ) : (
+          // single bot — coloured bars with peak highlight
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D0D0D0" />
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 10, fill: '#666' }}
-                tickFormatter={d => {
-                  const dt = new Date(d);
-                  return `${dt.toLocaleString('default', { month: 'short' })} ${dt.getDate()}`;
-                }}
+                tickFormatter={d => { const dt = new Date(d); return `${dt.toLocaleString('default', { month: 'short' })} ${dt.getDate()}`; }}
                 interval="preserveStartEnd"
                 axisLine={false}
                 tickLine={false}
