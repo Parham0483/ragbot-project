@@ -83,6 +83,9 @@ class RAGService:
             file_path = document.file.path
             text = self.extract_text_from_file(file_path, document.file_type)
 
+            # strip null bytes — postgres rejects them in string columns
+            text = text.replace('\x00', '')
+
             if not text.strip():
                 raise ValueError("No text could be extracted from document")
 
