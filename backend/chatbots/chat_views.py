@@ -106,23 +106,15 @@ def chat_endpoint(request, chatbot_id):
         if provider not in ALLOWED_MODELS or model_id not in ALLOWED_MODELS.get(provider, []):
             model_id, provider = 'gpt-3.5-turbo', 'openai'
 
-        # Generate AI response using RAG, timing the call
-        # anthropic uses the agentic loop, everyone else uses the normal path
+        # Generate AI response — RAG context injected into system message for all providers
         t0 = time.monotonic()
-        if provider == 'anthropic':
-            rag_result = rag_service.generate_response_agentic(
-                chatbot=chatbot,
-                user_message=user_message,
-                conversation_history=history,
-            )
-        else:
-            rag_result = rag_service.generate_response(
-                chatbot=chatbot,
-                user_message=user_message,
-                conversation_history=history,
-                model=model_id,
-                provider=provider,
-            )
+        rag_result = rag_service.generate_response(
+            chatbot=chatbot,
+            user_message=user_message,
+            conversation_history=history,
+            model=model_id,
+            provider=provider,
+        )
         response_time_ms = int((time.monotonic() - t0) * 1000)
 
         if not rag_result['success']:

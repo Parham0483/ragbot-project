@@ -24,8 +24,7 @@ export default function LandingNavbar() {
       <div className={styles.links}>
         <Link to="/" className={styles.link}>Home</Link>
         <Link to="/pricing" className={styles.link}>Pricing</Link>
-        <a href="#" className={styles.link}>Blog</a>
-        <a href="#" className={styles.link}>Contact</a>
+        <Link to="/contact" className={styles.link}>Contact</Link>
       </div>
 
       <div className={styles.actions}>

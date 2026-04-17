@@ -218,16 +218,21 @@ class RAGService:
                 conversation_history=conversation_history
             )
 
-            client = self._client_for(provider)
-            response = client.chat.completions.create(
-                model=model,
-                messages=prompt,
-                temperature=chatbot.temperature,
-                max_tokens=chatbot.max_tokens
-            )
-
-            ai_message = response.choices[0].message.content
-            tokens_used = response.usage.total_tokens
+            # anthropic has its own SDK; openai and grok share the openai-compatible path
+            if provider == 'anthropic':
+                result = self._call_anthropic(prompt, model, chatbot.temperature, chatbot.max_tokens)
+                ai_message = result['response']
+                tokens_used = result['tokens_used']
+            else:
+                client = self._client_for(provider)
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=prompt,
+                    temperature=chatbot.temperature,
+                    max_tokens=chatbot.max_tokens
+                )
+                ai_message = response.choices[0].message.content
+                tokens_used = response.usage.total_tokens
 
             return {
                 'success': True,

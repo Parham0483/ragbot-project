@@ -19,6 +19,7 @@ import APIKeysSettings from './components/Settings/APIKeysSettings';
 import CheckoutPage from './components/Settings/CheckoutPage';
 import HomePage from './components/Landing/HomePage';
 import PricingPage from './components/Landing/PricingPage';
+import ContactPage from './components/Landing/ContactPage';
 
 // Per-agent layout and tabs
 import AgentLayout from './components/Agent/AgentLayout';
@@ -80,6 +81,7 @@ function App() {
 
           <Route path="/" element={<HomePage />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
