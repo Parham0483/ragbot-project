@@ -6,7 +6,7 @@ import BotAvatar from '../Common/BotAvatar';
 import styles from './UISettingConfig.module.css';
 
 // static widget preview using current settings
-function WidgetPreview({ name, primaryColor }) {
+function WidgetPreview({ name, primaryColor, placeholder }) {
   return (
     <div className={styles.previewWrap}>
       <div className={styles.previewWidget}>
@@ -25,7 +25,7 @@ function WidgetPreview({ name, primaryColor }) {
         </div>
         <div className={styles.previewFooter}>Powered by SmartChat</div>
         <div className={styles.previewInput}>
-          <span className={styles.previewPlaceholder}>Message...</span>
+          <span className={styles.previewPlaceholder}>{placeholder || 'Message...'}</span>
         </div>
       </div>
     </div>
@@ -37,6 +37,8 @@ export default function UISettingConfig() {
   const [chatbot, setChatbot] = useState(null);
   const [displayName, setDisplayName] = useState('');
   const [primaryColor, setPrimaryColor] = useState('#B10000');
+  const [placeholder, setPlaceholder] = useState('Message...');
+  const [widgetAlign, setWidgetAlign] = useState('right');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -48,6 +50,8 @@ export default function UISettingConfig() {
       setDisplayName(r.data.name);
       setAvatarUrl(r.data.avatar_url || null);
       setPrimaryColor(r.data.theme_colour || '#B10000');
+      setPlaceholder(r.data.placeholder || 'Message...');
+      setWidgetAlign(r.data.widget_align || 'right');
     }).catch(console.error);
   }, [id]);
 
@@ -70,6 +74,8 @@ export default function UISettingConfig() {
       await chatbotAPI.patch(id, {
         name: displayName.trim() || chatbot.name,
         theme_colour: primaryColor,
+        placeholder,
+        widget_align: widgetAlign,
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -101,14 +107,6 @@ export default function UISettingConfig() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.fieldLabel}>Mode</label>
-          <div className={styles.modeToggle}>
-            <button className={`${styles.modeBtn} ${styles.modeBtnActive}`}>☀</button>
-            <button className={styles.modeBtn}>🌙</button>
-          </div>
-        </div>
-
-        <div className={styles.field}>
           <label className={styles.fieldLabel}>Primary Color</label>
           <div className={styles.colorRow}>
             <input
@@ -122,30 +120,6 @@ export default function UISettingConfig() {
               value={primaryColor.toUpperCase()}
               onChange={e => setPrimaryColor(e.target.value)}
             />
-          </div>
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Secondary Color</label>
-          <div className={styles.colorRow}>
-            <div className={styles.colorSwatchStatic} style={{ background: '#FFFFFF', border: '1px solid #E0E0E0' }} />
-            <input className={`${styles.input} ${styles.colorInput}`} defaultValue="#FFFFFF" readOnly />
-          </div>
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Text Color</label>
-          <div className={styles.colorRow}>
-            <div className={styles.colorSwatchStatic} style={{ background: '#FFFFFF', border: '1px solid #E0E0E0' }} />
-            <input className={`${styles.input} ${styles.colorInput}`} defaultValue="#FFFFFF" readOnly />
-          </div>
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Chat Icon Color</label>
-          <div className={styles.colorRow}>
-            <div className={styles.colorSwatchStatic} style={{ background: '#000000' }} />
-            <input className={`${styles.input} ${styles.colorInput}`} defaultValue="#000000" readOnly />
           </div>
         </div>
 
@@ -168,22 +142,27 @@ export default function UISettingConfig() {
 
         <div className={styles.field}>
           <label className={styles.fieldLabel}>Placeholder</label>
-          <input className={styles.input} defaultValue="Message..." readOnly />
+          <input
+            className={styles.input}
+            value={placeholder}
+            onChange={e => setPlaceholder(e.target.value)}
+            maxLength={100}
+          />
         </div>
 
         <div className={styles.field}>
-          <label className={styles.fieldLabel}>
-            Chat Icon
-            <span className={styles.hint}>JPG, PNG, and SVG up to 1MB</span>
-          </label>
-          <button className={styles.uploadBtn}>Upload</button>
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Chat Icon Align</label>
+          <label className={styles.fieldLabel}>Widget Align</label>
           <div className={styles.alignToggle}>
-            <button className={`${styles.alignBtn} ${styles.alignBtnActive}`}>Left</button>
-            <button className={styles.alignBtn}>Right</button>
+            <button
+              type="button"
+              className={`${styles.alignBtn} ${widgetAlign === 'left' ? styles.alignBtnActive : ''}`}
+              onClick={() => setWidgetAlign('left')}
+            >Left</button>
+            <button
+              type="button"
+              className={`${styles.alignBtn} ${widgetAlign === 'right' ? styles.alignBtnActive : ''}`}
+              onClick={() => setWidgetAlign('right')}
+            >Right</button>
           </div>
         </div>
 
@@ -196,7 +175,7 @@ export default function UISettingConfig() {
       <div className={styles.previewPanel}>
         <h3 className={styles.previewTitle}>Preview</h3>
         <p className={styles.subtitle}>Customize widget for your website</p>
-        <WidgetPreview name={displayName} primaryColor={primaryColor} />
+        <WidgetPreview name={displayName} primaryColor={primaryColor} placeholder={placeholder} />
       </div>
     </div>
   );

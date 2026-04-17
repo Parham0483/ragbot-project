@@ -47,6 +47,13 @@ class Chatbot(models.Model):
     # widget accent colour, applied to header and user bubbles
     theme_colour = models.CharField(max_length=7, default='#B10000')
 
+    # widget input placeholder text
+    placeholder = models.CharField(max_length=100, default='Message...')
+
+    # which side of the screen the widget bubble sits on
+    widget_align = models.CharField(max_length=5, default='right',
+                                    choices=[('left', 'Left'), ('right', 'Right')])
+
     # Status
     is_active = models.BooleanField(
         default=True,

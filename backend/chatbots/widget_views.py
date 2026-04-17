@@ -30,6 +30,8 @@ def widget_config(request, chatbot_id):
         'avatar_url': avatar_url,
         'welcome_message': f"Hi! I'm {chatbot.name}. How can I help you?",
         'theme_colour': chatbot.theme_colour,
+        'placeholder': chatbot.placeholder,
+        'widget_align': chatbot.widget_align,
         'active': chatbot.is_active,
     })
 
