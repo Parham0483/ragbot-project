@@ -21,6 +21,7 @@ urlpatterns = [
     # Widget endpoints (public, no auth)
     path('api/widget/<int:chatbot_id>/config/', widget_views.widget_config, name='widget-config'),
     path('api/widget/<int:chatbot_id>/chat/', widget_views.widget_chat, name='widget-chat'),
+    path('api/widget/<int:chatbot_id>/embed.js', widget_views.widget_script, name='widget-script'),
 
     # Embed code (authenticated, owner only)
     path('api/chatbots/<int:chatbot_id>/embed-code/', widget_views.embed_code, name='embed-code'),
@@ -34,10 +35,10 @@ urlpatterns = [
          name='conversation-delete'),
 ]
 
-# Protected document downloads (auth required) — must come before any static fallback
+# Protected document downloads (auth required)
 urlpatterns += protected_media_urlpatterns
 
-# Chatbot avatars are public — serve in both dev and production
+# Chatbot avatars are public
 urlpatterns += [
     re_path(r'^media/chatbot_avatars/(?P<path>.+)$', static_serve,
             {'document_root': str(settings.MEDIA_ROOT) + '/chatbot_avatars'}),

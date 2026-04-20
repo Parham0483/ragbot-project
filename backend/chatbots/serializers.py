@@ -34,6 +34,7 @@ class ChatbotSerializer(serializers.ModelSerializer):
             'ai_model', 'ai_provider',
             'is_active', 'document_count', 'conversation_count',
             'avatar_url', 'theme_colour', 'placeholder', 'widget_align',
+            'widget_width', 'widget_height', 'allowed_domains',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'owner', 'created_at', 'updated_at']

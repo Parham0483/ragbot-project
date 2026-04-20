@@ -54,6 +54,14 @@ class Chatbot(models.Model):
     widget_align = models.CharField(max_length=5, default='right',
                                     choices=[('left', 'Left'), ('right', 'Right')])
 
+    # popup dimensions in pixels
+    widget_width = models.PositiveIntegerField(default=380)
+    widget_height = models.PositiveIntegerField(default=600)
+
+    # newline-separated list of allowed domains
+
+    allowed_domains = models.TextField(blank=True, default='')
+
     # Status
     is_active = models.BooleanField(
         default=True,

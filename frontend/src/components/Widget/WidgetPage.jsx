@@ -2,8 +2,74 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { widgetAPI } from '../../services/api';
 
+// when loaded  show the popup demo
+function StandaloneDemo({ id }) {
+  const frameUrl = window.location.href;
+  const [open, setOpen] = useState(false);
+  const [config, setConfig] = useState(null);
+
+  useEffect(() => {
+    widgetAPI.config(id).then(r => setConfig(r.data)).catch(() => {});
+  }, [id]);
+
+  const accent = config?.theme_colour || '#B10000';
+  const initial = (config?.name || 'A')[0].toUpperCase();
+
+  return (
+    <div style={{ width: '100vw', height: '100vh', background: '#f5f5f5', fontFamily: 'sans-serif', position: 'relative' }}>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center', color: '#aaa' }}>
+        <div style={{ fontSize: 14 }}>Widget demo — click the bubble to try it</div>
+      </div>
+
+      {/* popup iframe */}
+      {open && (
+        <iframe
+          src={frameUrl}
+          title="chat"
+          style={{
+            position: 'fixed',
+            bottom: 76,
+            right: 20,
+            width: config?.widget_width || 380,
+            height: config?.widget_height || 600,
+            border: 'none',
+            borderRadius: 16,
+            zIndex: 9999,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          }}
+        />
+      )}
+
+      {/* bubble */}
+      <div
+        onClick={() => setOpen(v => !v)}
+        style={{
+          position: 'fixed', bottom: 20, right: 20,
+          width: 44, height: 44, borderRadius: '50%',
+          background: accent, cursor: 'pointer',
+          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.2)', overflow: 'hidden',
+        }}
+      >
+        {open
+          ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" /></svg>
+          : config?.avatar_url
+            ? <img src={config.avatar_url} alt="" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }} />
+            : <span style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>{initial}</span>
+        }
+      </div>
+    </div>
+  );
+}
+
 export default function WidgetPage() {
   const { id } = useParams();
+  const isInIframe = window.self !== window.top;
+  if (!isInIframe) return <StandaloneDemo id={id} />;
+  return <WidgetChat id={id} />;
+}
+
+function WidgetChat({ id }) {
   const [config, setConfig] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
