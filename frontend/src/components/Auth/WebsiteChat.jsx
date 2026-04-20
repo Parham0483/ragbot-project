@@ -13,12 +13,13 @@ export default function WebsiteChat() {
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const [conversationId, setConversationId] = useState(null);
-  const bottomRef = useRef(null);
+  const messagesRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Auto-scroll whenever messages or typing state changes
+  // scroll the messages box itself — never the page
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = messagesRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages, typing]);
 
   const send = async () => {
@@ -57,15 +58,13 @@ export default function WebsiteChat() {
     <div className={styles.wrapper}>
       {/* Header */}
       <div className={styles.header}>
-        <div className={styles.headerLogo}>
-          <span className={styles.headerLogoText}>CS</span>
-        </div>
+        <img src="/cs-logo.png" alt="Smart Chat" className={styles.headerLogo} />
         <span className={styles.headerTitle}>Smart Chat</span>
         <span className={styles.onlineDot} title="Online" />
       </div>
 
       {/* Messages */}
-      <div className={styles.messages}>
+      <div className={styles.messages} ref={messagesRef}>
         {messages.map((msg, i) => {
           if (msg.role === 'user') return <div key={i} className={styles.msgUser}>{msg.text}</div>;
           if (msg.role === 'error') return <div key={i} className={styles.msgError}>{msg.text}</div>;
@@ -79,8 +78,6 @@ export default function WebsiteChat() {
             <span className={styles.typingDot} />
           </div>
         )}
-
-        <div ref={bottomRef} />
       </div>
 
       {/* Input */}

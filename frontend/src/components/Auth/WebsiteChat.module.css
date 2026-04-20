@@ -22,18 +22,9 @@
 .headerLogo {
   width: 28px;
   height: 28px;
-  background: #1a1a1a;
   border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
-}
-
-.headerLogoText {
-  font-size: 10px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.9);
+  object-fit: contain;
 }
 
 .headerTitle {

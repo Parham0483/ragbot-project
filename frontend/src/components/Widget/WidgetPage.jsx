@@ -66,6 +66,7 @@ export default function WidgetPage() {
     return (
       <div style={s.root}>
         <div style={{ ...s.header, background: accent }}>
+          <img src="/cs-logo.png" alt="" style={s.headerAvatar} />
           <span style={s.headerName}>Assistant</span>
         </div>
         <div style={s.body}>
@@ -83,7 +84,7 @@ export default function WidgetPage() {
       <div style={{ ...s.header, background: accent }}>
         {config.avatar_url
           ? <img src={config.avatar_url} alt="" style={s.headerAvatar} />
-          : <div style={s.headerInitial}>{(config.name || 'A')[0].toUpperCase()}</div>
+          : <img src="/cs-logo.png" alt="" style={s.headerAvatar} />
         }
         <span style={s.headerName}>{config.name}</span>
         <span style={s.onlineDot} />
@@ -150,10 +151,12 @@ const s = {
     height: '100vh', width: '100%',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     background: '#111', color: '#fff', overflow: 'hidden',
+    borderRadius: 12,
   },
   header: {
     display: 'flex', alignItems: 'center', gap: 10,
     padding: '12px 16px', flexShrink: 0,
+    borderRadius: '12px 12px 0 0',
   },
   headerAvatar: { width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' },
   headerInitial: {

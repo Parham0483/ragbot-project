@@ -197,7 +197,6 @@ export default function HomePage() {
               <span className={styles.demoDot} style={{ background: '#ff5f56' }} />
               <span className={styles.demoDot} style={{ background: '#ffbd2e' }} />
               <span className={styles.demoDot} style={{ background: '#27c93f' }} />
-              <span className={styles.demoUrl}>localhost:3000/widget/demo</span>
             </div>
             <div className={styles.demoChatBox}>
               <WebsiteChat />
