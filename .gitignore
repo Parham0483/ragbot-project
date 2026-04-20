@@ -53,13 +53,11 @@ package.json
 package-lock.json
 .claude/sessions/
 
-# Local-only: scripts, docs, test files
+# Local-only: scripts, docs
 scripts/
 README.md
-**/tests.py
 
 # Generated / local artefacts
 graphify-out/
 results/
 ~$*.docx
-backend/services/tests_agentic_rag.py
