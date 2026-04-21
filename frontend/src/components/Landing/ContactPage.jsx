@@ -38,7 +38,6 @@ export default function ContactPage() {
               </div>
 
               <div className={styles.card}>
-                <span className={styles.icon}>📍</span>
                 <div>
                   <p className={styles.cardLabel}>Location</p>
                   <p className={styles.cardValue}>London, UK</p>
@@ -46,7 +45,6 @@ export default function ContactPage() {
               </div>
 
               <div className={styles.card}>
-                <span className={styles.icon}>🕐</span>
                 <div>
                   <p className={styles.cardLabel}>Response Time</p>
                   <p className={styles.cardValue}>We reply within 24 hours</p>

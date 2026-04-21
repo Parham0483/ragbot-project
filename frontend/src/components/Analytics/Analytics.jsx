@@ -92,12 +92,12 @@ function Analytics() {
   const { user } = useAuth();
 
   const [chatbots, setChatbots]               = useState([]);
-  const [selectedChatbot, setSelectedChatbot] = useState('all'); // 'all' or chatbot id string
+  const [selectedChatbot, setSelectedChatbot] = useState('all');
   const [dateRange, setDateRange]             = useState('');
 
   const [summary, setSummary]           = useState(null);
   const [chartData, setChartData]       = useState([]);
-  const [perBotData, setPerBotData]     = useState([]);   // flat rows from overview/per-bot
+  const [perBotData, setPerBotData]     = useState([]);
   const [questions, setQuestions]       = useState([]);
   const [overallStats, setOverallStats] = useState({ total: 0, active: 0 });
   const [loading, setLoading]           = useState(true);
