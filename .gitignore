@@ -53,8 +53,7 @@ package.json
 package-lock.json
 .claude/sessions/
 
-# Local-only: scripts, docs
-scripts/
+# Local-only: docs
 README.md
 
 # Generated / local artefacts
