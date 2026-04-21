@@ -361,7 +361,7 @@ def email_change_request_view(request):
     if User.objects.filter(email=new_email).exclude(pk=request.user.pk).exists():
         return Response({'error': 'That email is already in use.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    otp = str(random.randint(100000, 999999))
+    otp = str(secrets.randbelow(900000) + 100000)
     expires = timezone.now() + timedelta(minutes=15)
 
     request.user.email_change_pending = new_email

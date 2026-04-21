@@ -15,7 +15,7 @@ from accounts.utils import get_monthly_usage
 MAX_MESSAGE_LENGTH = 2000
 MAX_COMPARE_MODELS = 4
 
-# 20 messages/min for anon,
+
 # 60/min for authenticated users on the chat endpoint
 class ChatAnonThrottle(AnonRateThrottle):
     rate = '20/minute'
@@ -164,7 +164,9 @@ def conversation_history(request, conversation_id):
         conversation = get_object_or_404(Conversation, id=conversation_id)
 
         # Check user has access
-        if request.user != conversation.chatbot.owner and conversation.user != request.user:
+        if request.user != conversation.chatbot.owner:
+            if conversation.user is not None and conversation.user != request.user:
+                return Response({'error': 'Access denied'}, status=403)
             return Response(
                 {'error': 'Access denied'},
                 status=status.HTTP_403_FORBIDDEN
@@ -246,7 +248,7 @@ def compare_endpoint(request, chatbot_id):
     # Build RAG prompt once and share it across all models
     prompt_messages, chunks_used = rag_service.prepare_prompt(chatbot, message)
 
-    # all compare responses must be plain text — no markdown, bullets, or headers
+    # all compare responses must be plain text
     plain_text_note = (
         "\n\nIMPORTANT: Respond in plain text only. "
         "Do not use markdown, bold, headers, or bullet points."

@@ -11,7 +11,7 @@ urlpatterns = [
     path('', include(router.urls)),
 ]
 
-# Protected document download — replaces the unauthenticated /media/documents/ route
+# Protected document download
 protected_media_urlpatterns = [
     re_path(r'^media/documents/(?P<path>.+)$', serve_document, name='serve-document'),
 ]
