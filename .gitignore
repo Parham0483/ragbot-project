@@ -53,8 +53,7 @@ package.json
 package-lock.json
 .claude/sessions/
 
-# Local-only: docs
-README.md
+scripts/test_docs
 
 # Generated / local artefacts
 graphify-out/
