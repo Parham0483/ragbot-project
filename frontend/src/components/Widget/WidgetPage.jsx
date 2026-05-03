@@ -70,6 +70,7 @@ export default function WidgetPage() {
 }
 
 function WidgetChat({ id }) {
+
   const [config, setConfig] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');

@@ -35,9 +35,6 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
-.claude/
-daily_dev.sh
-CLAUDE.md
 daily_dev.sh
 backend/media/
 frontend/build/
@@ -51,7 +48,7 @@ tests/
 # Root-level package.json/lock created by playwright install
 package.json
 package-lock.json
-.claude/sessions/
+
 
 scripts/test_docs
 

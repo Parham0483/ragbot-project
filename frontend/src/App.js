@@ -76,7 +76,7 @@ function App() {
             <Route path="config/ai-models"  element={<AIModelsConfig />} />
           </Route>
 
-          {/* Embeddable widget - no auth, standalone page for iframe */}
+          {/* Embeddable widget - no auth, standalone page for script */}
           <Route path="/widget/:id" element={<WidgetPage />} />
 
           <Route path="/" element={<HomePage />} />

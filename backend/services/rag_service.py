@@ -13,6 +13,7 @@ from documents.models import Document, DocumentChunk
 from chatbots.models import Chatbot
 
 
+
 class RAGService:
 
     def __init__(self):
@@ -305,7 +306,7 @@ class RAGService:
             user_message: str,
             conversation_history: Optional[List[Dict]] = None,
     ) -> Dict:
-        # claude picks when to search, we just run the search and pass results back
+        # LLM picks when to search, we just run the search and pass results back
         try:
             import anthropic as _anthropic
 
@@ -335,7 +336,7 @@ class RAGService:
                 total_tokens += response.usage.input_tokens + response.usage.output_tokens
 
                 if response.stop_reason == "end_turn":
-                    # claude finished  grab the text and return
+                    # model finished — grab the text and return
                     text_blocks = [b.text for b in response.content if hasattr(b, 'text')]
                     answer = "\n".join(text_blocks).strip()
                     return {
@@ -353,7 +354,7 @@ class RAGService:
                     }
 
                 if response.stop_reason == "tool_use":
-                    # claude may request multiple searches in a single turn — handle all of them
+                    # model may request multiple searches in a single turn — handle all of them
                     tool_blocks = [
                         b for b in response.content
                         if hasattr(b, 'type') and b.type == "tool_use"

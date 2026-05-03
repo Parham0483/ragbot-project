@@ -36,29 +36,22 @@ class Chatbot(models.Model):
         default=500,
         help_text="Maximum tokens in response"
     )
-    
-    # AI model selection
+
     ai_model = models.CharField(max_length=100, default='gpt-3.5-turbo')
     ai_provider = models.CharField(max_length=50, default='openai')
 
-    # profile picture — null means use initials fallback
     avatar = models.ImageField(upload_to='chatbot_avatars/', null=True, blank=True)
 
-    # widget accent colour, applied to header and user bubbles
     theme_colour = models.CharField(max_length=7, default='#B10000')
 
-    # widget input placeholder text
     placeholder = models.CharField(max_length=100, default='Message...')
 
-    # which side of the screen the widget bubble sits on
     widget_align = models.CharField(max_length=5, default='right',
                                     choices=[('left', 'Left'), ('right', 'Right')])
 
-    # popup dimensions in pixels
     widget_width = models.PositiveIntegerField(default=380)
     widget_height = models.PositiveIntegerField(default=600)
 
-    # newline-separated list of allowed domains
 
     allowed_domains = models.TextField(blank=True, default='')
 
